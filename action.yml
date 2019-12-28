@@ -1,12 +1,17 @@
-name: 'Container Action Template'
-description: 'Get started with Container actions'
-author: 'GitHub'
-inputs: 
-  myInput:
-    description: 'Input to use'
-    default: 'world'
-runs:
-  using: 'docker'
-  image: 'Dockerfile'
+name: "Google Java Format"
+description: "Automatically format Java files using Google Java Style"
+author: "axel-op"
+branding:
+  color: "red"
+  icon: "align-right"
+inputs:
   args:
-    - ${{ inputs.myInput }}
+    description: "Arguments for the Google Java Format executable"
+    required: false
+    default: "--replace"
+  files:
+    description: "Files to be formatted"
+    required: false
+runs:
+  using: "docker"
+  image: "Dockerfile"
