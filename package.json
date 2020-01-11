@@ -1,0 +1,28 @@
+{
+  "name": "googlejavaformat-action",
+  "version": "2.0.0",
+  "description": "Automatically format your Java files using Google Java Style guidelines.",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/axel-op/googlejavaformat-action.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/axel-op/googlejavaformat-action/issues"
+  },
+  "homepage": "https://github.com/axel-op/googlejavaformat-action#readme",
+  "dependencies": {
+    "@actions/core": "^1.2.0",
+    "@actions/exec": "^1.0.2",
+    "@actions/glob": "^0.1.0",
+    "@types/node": "^13.1.4",
+    "typescript": "^3.7.4"
+  }
+}

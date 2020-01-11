@@ -10,8 +10,13 @@ inputs:
     required: false
     default: "--replace"
   files:
-    description: "Files to be formatted"
+    description: "Pattern to match files to be formatted"
     required: false
+    default: "**/*.java"
+  skipCommit:
+    description: "Set to true to not commit the changes"
+    required: false
+    default: "false"
 runs:
-  using: "docker"
-  image: "Dockerfile"
+  using: "node12"
+  main: "index.js"
