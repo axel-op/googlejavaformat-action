@@ -2,7 +2,7 @@
 
 Automatically format your Java files using Google Java Style guidelines.
 
-If some files need to be formatted, this action will push a commit with the modifications (unless you use the `--dry-run` argument, see below).
+If some files need to be formatted, this action will push a commit with the modifications (unless you set the `skipCommit` input to `true`, or use the `--dry-run` argument, see below).
 
 You must checkout your repository with `actions/checkout` before calling this action (see the example).
 
@@ -22,10 +22,10 @@ jobs:
   formatting:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2 # required
-      - uses: axel-op/googlejavaformat-action@v1.0.0
+      - uses: actions/checkout@v2 # v2 minimum required
+      - uses: axel-op/googlejavaformat-action@v2.0.0
         with:
-          args: "--aosp --replace"
+          args: "--skip-sorting-imports --replace"
 ```
 
 ## Inputs
@@ -34,7 +34,11 @@ None of these inputs is required, but you can add them to change the behavior of
 
 ### `files`
 
-The files to format. If you don't specify it, all Java files in your repository will be formatted.
+A pattern to match the files to format. The default is `**/*.java`, which means that all Java files in your repository will be formatted.
+
+### `skipCommit`
+
+Set to `true` if you don't want the changes to be committed by this action.
 
 ### `args`
 
