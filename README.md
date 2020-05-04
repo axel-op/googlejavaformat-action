@@ -25,10 +25,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2 # v2 minimum required
-      - uses: actions/setup-java@v1 # JDK 11 minimum required
+      # Recommended: latest versions of Google Java Format require JDK 11+
+      - uses: actions/setup-java@v1
         with:
           java-version: '11'
-      - uses: axel-op/googlejavaformat-action@v2.0.0
+      - uses: axel-op/googlejavaformat-action@v3.0.0
         with:
           args: "--skip-sorting-imports --replace"
 ```
