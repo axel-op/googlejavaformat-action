@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2 # v2 minimum required
-      - uses: axel-op/googlejavaformat-action@v2.0.0
+      - uses: axel-op/googlejavaformat-action@v3.0.0
         with:
           args: "--skip-sorting-imports --replace"
 ```
