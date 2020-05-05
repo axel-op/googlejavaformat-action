@@ -70,6 +70,12 @@ By default, only `--replace` is used.
 --skip-removing-unused-imports
   Do not remove unused imports. Imports will still be sorted.
 
+--skip-reflowing-long-strings
+  (JDK 11+) Do not reflow string literals that exceed the column limit.
+
+--skip-javadoc-formatting
+  (JDK 11+) Do not reformat javadoc.
+
 --dry-run, -n
   Prints the paths of the files whose contents would change if the formatter were run normally.
 
