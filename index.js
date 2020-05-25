@@ -20,7 +20,7 @@ async function execAndGetOutput(command, getStdErr = false) {
         ignoreReturnCode: false,
         listeners: {
             stdout: (data) => getStdErr ? core.info(data.toString()) : output += data.toString(),
-            stderr: (data) => getStdErr ? output += data.toString() : core.error(data.toString())
+            stderr: (data) => getStdErr ? output += data.toString() : core.info(data.toString())
         }
     };
     await exec.exec(command, null, options);
