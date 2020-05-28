@@ -29,7 +29,7 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: "11"
-      - uses: axel-op/googlejavaformat-action@v3.0.0
+      - uses: axel-op/googlejavaformat-action@v3
         with:
           args: "--skip-sorting-imports --replace"
 ```
@@ -44,7 +44,7 @@ A pattern to match the files to format. The default is `**/*.java`, which means 
 
 ### `skipCommit`
 
-Set to `true` if you don't want the changes to be committed by this action.
+Set to `true` if you don't want the changes to be committed by this action. Default: `false`.
 
 ### `args`
 
