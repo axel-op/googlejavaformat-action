@@ -38,6 +38,10 @@ jobs:
 
 None of these inputs is required, but you can add them to change the behavior of this action.
 
+### `version`
+
+Set this input to use a [specific version of Google Java Format](https://github.com/google/google-java-format/releases). For example: `1.7`, `1.8`...
+
 ### `files`
 
 A pattern to match the files to format. The default is `**/*.java`, which means that all Java files in your repository will be formatted.

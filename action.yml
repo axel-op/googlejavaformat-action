@@ -17,6 +17,9 @@ inputs:
     description: "Set to true to not commit the changes"
     required: false
     default: "false"
+  version:
+    description: "Version of Google Java Format to use"
+    required: false
 runs:
   using: "node12"
   main: "index.js"

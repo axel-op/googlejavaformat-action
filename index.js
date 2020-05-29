@@ -3,6 +3,15 @@ const exec = require('@actions/exec');
 const glob = require('@actions/glob');
 
 const executable = `${process.env.HOME}/google-java-format.jar`;
+const apiReleases = 'https://api.github.com/repos/google/google-java-format/releases';
+
+class ExecResult {
+    constructor(exitCode, stdOut, stdErr) {
+        this.exitCode = exitCode;
+        this.stdOut = stdOut;
+        this.stdErr = stdErr;
+    }
+}
 
 async function executeGJF(args, files) {
     let arguments = ['-jar', executable].concat(args.split(" "));
@@ -13,58 +22,80 @@ async function executeGJF(args, files) {
     await exec.exec('java', arguments, options);
 }
 
-async function execAndGetOutput(command, getStdErr = false) {
-    let output = '';
+async function execute(command, { silent = false, ignoreReturnCode = false } = {}) {
+    let stdErr = '';
+    let stdOut = '';
     const options = {
-        silent: true,
-        ignoreReturnCode: false,
+        silent: silent,
+        ignoreReturnCode: ignoreReturnCode,
         listeners: {
-            stdout: (data) => getStdErr ? core.info(data.toString()) : output += data.toString(),
-            stderr: (data) => getStdErr ? output += data.toString() : core.info(data.toString())
+            stdout: (data) => stdOut += data.toString(),
+            stderr: (data) => stdErr += data.toString(),
         }
     };
-    await exec.exec(command, null, options);
-    return output;
+    core.debug(`Executing: ${command}`);
+    let exitCode;
+    try {
+        exitCode = await exec.exec(command, null, options);
+        return new ExecResult(exitCode, stdOut, stdErr);
+    } finally {
+        core.debug(`Exit code: ${exitCode}`);
+    }
+}
+
+async function getJavaVersion() {
+    let javaVersion = await execute('java -version', { silent: !core.isDebug() });
+    javaVersion = javaVersion.stdErr;
+    javaVersion = javaVersion
+        .split('\n')[0]
+        .match(RegExp('[0-9\.]+'))[0];
+    core.debug(`Extracted version number: ${javaVersion}`);
+    if (javaVersion.startsWith('1.')) javaVersion = javaVersion.replace(RegExp('^1\.'), '');
+    javaVersion = javaVersion.split('\.')[0];
+    return parseInt(javaVersion);
+}
+
+async function getReleaseId() {
+    let releaseId = 'latest';
+    let releases = await execute(`curl -s "${apiReleases}"`, { silent: true });
+    releases = JSON.parse(releases.stdOut);
+    const findRelease = function (name) { return releases.find(r => r['name'] === name); };
+    // Check if a specific version is requested
+    const input = core.getInput('version');
+    if (input !== undefined && input !== '') {
+        const release = findRelease(input);
+        if (release !== undefined) return release['id'];
+        core.warning(`Version "${input}" of Google Java Format cannot be found. Fallback to latest.`);
+    }
+    const javaVersion = await getJavaVersion();
+    if (isNaN(javaVersion)) core.warning('Cannot determine JDK version');
+    else {
+        core.info(`Version of JDK: ${javaVersion}`);
+        if (javaVersion < 11) {
+            // Versions after 1.7 require Java SDK 11+
+            core.warning('Latest versions of Google Java Format require Java SDK 11 min. Fallback to Google Java Format 1.7.');
+            releaseId = findRelease('1.7')['id'];
+            if (releaseId === undefined) throw 'Cannot find release id of Google Java Format 1.7';
+        }
+    }
+    return releaseId;
 }
 
 async function run() {
     try {
-        // Determine version of Java SDK
-        core.startGroup('Checking current JDK');
-        let javaVersion = await execAndGetOutput('java -version', true);
-        core.debug(javaVersion);
-        javaVersion = javaVersion
-            .split('\n')[0]
-            .match(RegExp('[0-9\.]+'))[0];
-        core.debug(`Extracted version number: ${javaVersion}`);
-        if (javaVersion.startsWith('1.')) javaVersion = javaVersion.replace(RegExp('^1\.'), '');
-        javaVersion = javaVersion.split('\.')[0];
-        javaVersion = parseInt(javaVersion);
-
-        // 14891293 is the id of GJF 1.7
-        // Later versions require Java SDK 11+
-        let releaseId = 'latest';
-        if (isNaN(javaVersion)) core.warning('Cannot determine JDK version');
-        else {
-            core.info(`Version of JDK: ${javaVersion}`);
-            if (javaVersion < 11) {
-                core.warning('Latest versions of Google Java Format require Java SDK 11 min. Fallback to Google Java Format 1.7.');
-                releaseId = '14891293';
-            }
-        }
-        core.endGroup();
-
         // Get Google Java Format executable and save it to [executable]
-        core.startGroup('Downloading Google Java Format');
-        const urlRelease = `https://api.github.com/repos/google/google-java-format/releases/${releaseId}`;
-        core.debug(`URL: ${urlRelease}`);
-        const release = JSON.parse(await execAndGetOutput(`curl -s "${urlRelease}"`));
-        const assets = release['assets'];
-        const downloadUrl = assets.find(asset => asset['name'].endsWith('all-deps.jar'))['browser_download_url'];
-        core.info(`Downloading executable to ${executable}`);
-        await exec.exec(`curl -sL ${downloadUrl} -o ${executable}`);
-        await executeGJF('--version');
-        core.endGroup();
+        const releaseId = await getReleaseId();
+        await core.group('Downloading Google Java Format', async () => {
+            const urlRelease = `${apiReleases}/${releaseId}`;
+            core.debug(`URL: ${urlRelease}`);
+            let release = await execute(`curl -s "${urlRelease}"`, { silent: true });
+            release = JSON.parse(release.stdOut);
+            const assets = release['assets'];
+            const downloadUrl = assets.find(asset => asset['name'].endsWith('all-deps.jar'))['browser_download_url'];
+            core.info(`Downloading executable to ${executable}`);
+            await execute(`curl -sL ${downloadUrl} -o ${executable}`);
+            await executeGJF('--version');
+        });
 
         // Execute Google Java Format with provided arguments
         const args = core.getInput('args');
@@ -74,15 +105,12 @@ async function run() {
 
         // Commit changed files if there are any and if skipCommit != true
         if (core.getInput('skipCommit').toLowerCase() !== 'true') {
-            core.startGroup('Committing changes');
-            const options = { silent: true };
-            await exec.exec('git', ['config', 'user.name', 'github-actions'], options);
-            await exec.exec('git', ['config', 'user.email', ''], options);
-            options.silent = false;
-            options.ignoreReturnCode = true;
-            await exec.exec('git', ['commit', '-m', 'Google Java Format', '--all'], options);
-            await exec.exec('git', ['push'], options);
-            core.endGroup();
+            await core.group('Committing changes', async () => {
+                await execute('git config user.name github-actions', { silent: true });
+                await execute("git config user.email ''", { silent: true });
+                await execute('git commit --all -m "Google Java Format"', { ignoreReturnCode: true });
+                await execute('git push', { ignoreReturnCode: true });
+            });
         }
     } catch (message) {
         core.setFailed(message);
