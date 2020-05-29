@@ -76,7 +76,7 @@ async function run() {
         if (core.getInput('skipCommit').toLowerCase() !== 'true') {
             core.startGroup('Committing changes');
             const options = { silent: true };
-            await exec.exec('git', ['config', 'user.name', 'GitHub Actions'], options);
+            await exec.exec('git', ['config', 'user.name', 'github-actions'], options);
             await exec.exec('git', ['config', 'user.email', ''], options);
             options.silent = false;
             options.ignoreReturnCode = true;
