@@ -18,8 +18,15 @@ async function executeGJF(args, files) {
     if (files !== undefined) {
         for (const file of files) { arguments.push(file); }
     }
-    const options = { cwd: process.env.GITHUB_WORKSPACE }
-    await exec.exec('java', arguments, options);
+    const options = {
+        cwd: process.env.GITHUB_WORKSPACE,
+        ignoreReturnCode: true
+    }
+    const exitCode = await exec.exec('java', arguments, options);
+    if (exitCode !== 0) {
+        throw `Google Java Format failed with exit code ${exitCode}`;
+    }
+
 }
 
 async function execute(command, { silent = false, ignoreReturnCode = false } = {}) {
@@ -27,20 +34,19 @@ async function execute(command, { silent = false, ignoreReturnCode = false } = {
     let stdOut = '';
     const options = {
         silent: silent,
-        ignoreReturnCode: ignoreReturnCode,
+        ignoreReturnCode: true,
         listeners: {
             stdout: (data) => stdOut += data.toString(),
             stderr: (data) => stdErr += data.toString(),
         }
     };
     core.debug(`Executing: ${command}`);
-    let exitCode;
-    try {
-        exitCode = await exec.exec(command, null, options);
-        return new ExecResult(exitCode, stdOut, stdErr);
-    } finally {
-        core.debug(`Exit code: ${exitCode}`);
+    const exitCode = await exec.exec(command, null, options);
+    core.debug(`Exit code: ${exitCode}`);
+    if (!ignoreReturnCode && exitCode !== 0) {
+        throw `The command '${command}' failed with exit code ${exitCode}`;
     }
+    return new ExecResult(exitCode, stdOut, stdErr);
 }
 
 async function getJavaVersion() {
