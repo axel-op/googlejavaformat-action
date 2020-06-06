@@ -13,11 +13,8 @@ class ExecResult {
     }
 }
 
-async function executeGJF(args, files) {
-    let arguments = ['-jar', executable].concat(args.split(" "));
-    if (files !== undefined) {
-        for (const file of files) { arguments.push(file); }
-    }
+async function executeGJF(args) {
+    const arguments = ['-jar', executable].concat(args);
     const options = {
         cwd: process.env.GITHUB_WORKSPACE,
         ignoreReturnCode: true
@@ -51,8 +48,7 @@ async function execute(command, { silent = false, ignoreReturnCode = false } = {
 
 async function getJavaVersion() {
     let javaVersion = await execute('java -version', { silent: !core.isDebug() });
-    javaVersion = javaVersion.stdErr;
-    javaVersion = javaVersion
+    javaVersion = javaVersion.stdErr
         .split('\n')[0]
         .match(RegExp('[0-9\.]+'))[0];
     core.debug(`Extracted version number: ${javaVersion}`);
@@ -100,22 +96,30 @@ async function run() {
             const downloadUrl = assets.find(asset => asset['name'].endsWith('all-deps.jar'))['browser_download_url'];
             core.info(`Downloading executable to ${executable}`);
             await execute(`curl -sL ${downloadUrl} -o ${executable}`);
-            await executeGJF('--version');
+            await executeGJF(['--version']);
         });
 
         // Execute Google Java Format with provided arguments
-        const args = core.getInput('args');
+        const args = core.getInput('args').split(' ');
         core.debug(`Arguments: ${args}`);
         const files = await (await glob.create(core.getInput('files'))).glob();
-        await executeGJF(args, files);
+        core.debug(`Files:`);
+        for (const file of files) {
+            core.debug(`* ${file}`);
+            args.push(file);
+        }
+        await executeGJF(args);
 
         // Commit changed files if there are any and if skipCommit != true
         if (core.getInput('skipCommit').toLowerCase() !== 'true') {
             await core.group('Committing changes', async () => {
                 await execute('git config user.name github-actions', { silent: true });
                 await execute("git config user.email ''", { silent: true });
-                await execute('git commit --all -m "Google Java Format"', { ignoreReturnCode: true });
-                await execute('git push', { ignoreReturnCode: true });
+                const diffIndex = await execute('git diff-index --quiet HEAD', { ignoreReturnCode: true, silent: true });
+                if (diffIndex.exitCode !== 0) {
+                    await execute('git commit --all -m "Google Java Format"');
+                    await execute('git push');
+                } else core.info('Nothing to commit!')
             });
         }
     } catch (message) {
