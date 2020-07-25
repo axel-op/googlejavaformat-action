@@ -1,8 +1,10 @@
 const core = require('@actions/core');
 const exec = require('@actions/exec');
 const glob = require('@actions/glob');
+const path = require('path');
 
-const executable = `${process.env.HOME}/google-java-format.jar`;
+
+const executable = path.join(process.env.HOME || process.env.HOMEPATH, 'google-java-format.jar');
 const apiReleases = 'https://api.github.com/repos/google/google-java-format/releases';
 
 class ExecResult {
@@ -85,10 +87,6 @@ async function getReleaseId() {
 }
 
 async function run() {
-    if (core.isDebug()) {
-        core.debug('Environment keys:')
-        for (var k in process.env) core.debug(`* ${k}`);
-    }
     try {
         // Get Google Java Format executable and save it to [executable]
         const releaseId = await getReleaseId();
