@@ -59,8 +59,9 @@ async function getJavaVersion() {
 
 async function getReleaseId() {
     let releaseId = 'latest';
-    let releases = await execute(`curl -s "${apiReleases}"`, { silent: true });
+    let releases = await execute(`curl -s "${apiReleases}"`, { silent: !core.isDebug() });
     releases = JSON.parse(releases.stdOut);
+    core.debug(`releases is ${typeof releases}`)
     const findRelease = function (name) { return releases.find(r => r['name'] === name); };
     // Check if a specific version is requested
     const input = core.getInput('version');
