@@ -98,7 +98,7 @@ async function run() {
             core.debug(`assets is ${typeof assets}`);
             const downloadUrl = assets.find(asset => asset['name'].endsWith('all-deps.jar'))['browser_download_url'];
             core.info(`Downloading executable to ${executable}`);
-            await execute(`curl -sL ${downloadUrl} -o ${executable}`);
+            await execute(`curl -sL ${downloadUrl} -o ${executable}`, { silent: !core.isDebug() });
             await executeGJF(['--version']);
         });
 
