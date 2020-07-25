@@ -85,6 +85,10 @@ async function getReleaseId() {
 }
 
 async function run() {
+    if (core.isDebug()) {
+        core.debug('Environment keys:')
+        for (var k in process.env) core.debug(`* ${k}`);
+    }
     try {
         // Get Google Java Format executable and save it to [executable]
         const releaseId = await getReleaseId();
