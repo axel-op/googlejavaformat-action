@@ -4,7 +4,7 @@ const glob = require('@actions/glob');
 const path = require('path');
 
 
-const executable = path.join(process.env.HOME || process.env.HOMEPATH, 'google-java-format.jar');
+const executable = path.join(process.env.HOME || process.env.USERPROFILE, 'google-java-format.jar');
 const apiReleases = 'https://api.github.com/repos/google/google-java-format/releases';
 
 class ExecResult {
