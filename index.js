@@ -1,8 +1,10 @@
 const core = require('@actions/core');
 const exec = require('@actions/exec');
 const glob = require('@actions/glob');
+const path = require('path');
 
-const executable = `${process.env.HOME}/google-java-format.jar`;
+
+const executable = path.join(process.env.HOME || process.env.USERPROFILE, 'google-java-format.jar');
 const apiReleases = 'https://api.github.com/repos/google/google-java-format/releases';
 
 class ExecResult {
@@ -59,8 +61,9 @@ async function getJavaVersion() {
 
 async function getReleaseId() {
     let releaseId = 'latest';
-    let releases = await execute(`curl -s "${apiReleases}"`, { silent: true });
+    let releases = await execute(`curl -s "${apiReleases}"`, { silent: !core.isDebug() });
     releases = JSON.parse(releases.stdOut);
+    core.debug(`releases is ${typeof releases}`);
     const findRelease = function (name) { return releases.find(r => r['name'] === name); };
     // Check if a specific version is requested
     const input = core.getInput('version');
@@ -92,10 +95,12 @@ async function run() {
             core.debug(`URL: ${urlRelease}`);
             let release = await execute(`curl -s "${urlRelease}"`, { silent: true });
             release = JSON.parse(release.stdOut);
+            core.debug(`release is ${typeof release}`);
             const assets = release['assets'];
+            core.debug(`assets is ${typeof assets}`);
             const downloadUrl = assets.find(asset => asset['name'].endsWith('all-deps.jar'))['browser_download_url'];
             core.info(`Downloading executable to ${executable}`);
-            await execute(`curl -sL ${downloadUrl} -o ${executable}`);
+            await execute(`curl -sL ${downloadUrl} -o ${executable}`, { silent: !core.isDebug() });
             await executeGJF(['--version']);
         });
 
