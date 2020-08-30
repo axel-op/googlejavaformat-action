@@ -1,12 +1,15 @@
 const core = require('@actions/core');
 const exec = require('@actions/exec');
 const glob = require('@actions/glob');
+const github = require('@actions/github');
 const path = require('path');
+const { context } = require('@actions/github/lib/utils');
 
-
+const owner = 'google';
+const repo = 'google-java-format';
 const githubToken = core.getInput('githubToken');
 const executable = path.join(process.env.HOME || process.env.USERPROFILE, 'google-java-format.jar');
-const apiReleases = 'https://api.github.com/repos/google/google-java-format/releases';
+const apiReleases = `https://api.github.com/repos/${owner}/${repo}/releases`;
 
 class ExecResult {
     constructor(exitCode, stdOut, stdErr) {
@@ -57,6 +60,16 @@ async function curl(url, arguments) {
     return await execute(command, { silent: !core.isDebug() });
 }
 
+async function listGJFReleases() {
+    if (githubToken === undefined) {
+        const releases = await execute(`curl -sL ${apiReleases}`, { silent: !core.isDebug() });
+        return JSON.parse(releases.stdOut);
+    }
+    const octokit = github.getOctokit(githubToken);
+    const releases = await octokit.repos.listReleases({ owner: owner, repo: repo });
+    return releases.data;
+}
+
 async function getJavaVersion() {
     let javaVersion = await execute('java -version', { silent: !core.isDebug() });
     javaVersion = javaVersion.stdErr
@@ -70,8 +83,7 @@ async function getJavaVersion() {
 
 async function getReleaseId() {
     let releaseId = 'latest';
-    let releases = await curl(apiReleases);
-    releases = JSON.parse(releases.stdOut);
+    const releases = await listGJFReleases();
     core.debug(`releases is ${typeof releases}`);
     const findRelease = function (name) { return releases.find(r => r['name'] === name); };
     // Check if a specific version is requested
