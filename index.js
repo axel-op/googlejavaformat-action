@@ -4,6 +4,7 @@ const glob = require('@actions/glob');
 const github = require('@actions/github');
 const path = require('path');
 const { context } = require('@actions/github/lib/utils');
+const { release } = require('os');
 
 const owner = 'google';
 const repo = 'google-java-format';
@@ -54,20 +55,30 @@ async function execute(command, { silent = false, ignoreReturnCode = false } = {
 
 async function curl(url, arguments) {
     let command = `curl -sL "${url}"`;
-    const useToken = githubToken !== undefined;
-    if (useToken) command += ` -H "Authorization: Bearer ${githubToken}"`;
     if (arguments !== undefined) command += ` ${arguments}`;
     return await execute(command, { silent: !core.isDebug() });
 }
 
 async function listGJFReleases() {
     if (githubToken === undefined) {
-        const releases = await execute(`curl -sL ${apiReleases}`, { silent: !core.isDebug() });
+        const releases = await curl(apiReleases);
         return JSON.parse(releases.stdOut);
     }
     const octokit = github.getOctokit(githubToken);
     const releases = await octokit.repos.listReleases({ owner: owner, repo: repo });
     return releases.data;
+}
+
+async function getRelease(releaseId) {
+    if (githubToken === undefined) {
+        const url = `${apiReleases}/${releaseId}`;
+        core.debug(`URL: ${urlRelease}`);
+        const release = await execute(url);
+        return JSON.parse(release.stdOut);
+    }
+    const octokit = github.getOctokit(githubToken);
+    const release = await octokit.repos.getRelease({ owner: owner, repo: repo, release_id: releaseId });
+    return release.data;
 }
 
 async function getJavaVersion() {
@@ -112,10 +123,7 @@ async function run() {
         // Get Google Java Format executable and save it to [executable]
         const releaseId = await getReleaseId();
         await core.group('Downloading Google Java Format', async () => {
-            const urlRelease = `${apiReleases}/${releaseId}`;
-            core.debug(`URL: ${urlRelease}`);
-            let release = await curl(urlRelease);
-            release = JSON.parse(release.stdOut);
+            let release = await getRelease(releaseId)
             core.debug(`release is ${typeof release}`);
             const assets = release['assets'];
             core.debug(`assets is ${typeof assets}`);
