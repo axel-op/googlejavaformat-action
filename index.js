@@ -4,6 +4,7 @@ const glob = require('@actions/glob');
 const path = require('path');
 
 
+const githubToken = core.getInput('githubToken');
 const executable = path.join(process.env.HOME || process.env.USERPROFILE, 'google-java-format.jar');
 const apiReleases = 'https://api.github.com/repos/google/google-java-format/releases';
 
@@ -25,7 +26,6 @@ async function executeGJF(args) {
     if (exitCode !== 0) {
         throw `Google Java Format failed with exit code ${exitCode}`;
     }
-
 }
 
 async function execute(command, { silent = false, ignoreReturnCode = false } = {}) {
@@ -43,9 +43,18 @@ async function execute(command, { silent = false, ignoreReturnCode = false } = {
     const exitCode = await exec.exec(command, null, options);
     core.debug(`Exit code: ${exitCode}`);
     if (!ignoreReturnCode && exitCode !== 0) {
+        command = command.split(' ')[0];
         throw `The command '${command}' failed with exit code ${exitCode}`;
     }
     return new ExecResult(exitCode, stdOut, stdErr);
+}
+
+async function curl(url, arguments) {
+    let command = `curl -sL "${url}"`;
+    const useToken = githubToken !== undefined;
+    if (useToken) command += ` -H "Authorization: Bearer ${githubToken}"`;
+    if (arguments !== undefined) command += ` ${arguments}`;
+    return await execute(command, { silent: !core.isDebug() });
 }
 
 async function getJavaVersion() {
@@ -61,7 +70,7 @@ async function getJavaVersion() {
 
 async function getReleaseId() {
     let releaseId = 'latest';
-    let releases = await execute(`curl -s "${apiReleases}"`, { silent: !core.isDebug() });
+    let releases = await curl(apiReleases);
     releases = JSON.parse(releases.stdOut);
     core.debug(`releases is ${typeof releases}`);
     const findRelease = function (name) { return releases.find(r => r['name'] === name); };
@@ -93,14 +102,14 @@ async function run() {
         await core.group('Downloading Google Java Format', async () => {
             const urlRelease = `${apiReleases}/${releaseId}`;
             core.debug(`URL: ${urlRelease}`);
-            let release = await execute(`curl -s "${urlRelease}"`, { silent: true });
+            let release = await curl(urlRelease);
             release = JSON.parse(release.stdOut);
             core.debug(`release is ${typeof release}`);
             const assets = release['assets'];
             core.debug(`assets is ${typeof assets}`);
             const downloadUrl = assets.find(asset => asset['name'].endsWith('all-deps.jar'))['browser_download_url'];
             core.info(`Downloading executable to ${executable}`);
-            await execute(`curl -sL ${downloadUrl} -o ${executable}`, { silent: !core.isDebug() });
+            await curl(downloadUrl, `-o ${executable}`)
             await executeGJF(['--version']);
         });
 

@@ -19,4 +19,5 @@ jobs:
       - uses: ./
         with:
           skipCommit: true
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
           version: ${{ matrix.version }}
