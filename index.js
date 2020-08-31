@@ -118,6 +118,15 @@ async function getReleaseId() {
     return releaseId;
 }
 
+async function push() {
+    if (githubToken === undefined) await execute('git push');
+    else {
+        const env = process.env;
+        const remote = `https://${env.GITHUB_ACTOR}:${githubToken}@github.com/${env.GITHUB_REPOSITORY}.git`;
+        await execute(`git push ${remote}`);
+    }
+}
+
 async function run() {
     try {
         // Get Google Java Format executable and save it to [executable]
@@ -152,7 +161,7 @@ async function run() {
                 const diffIndex = await execute('git diff-index --quiet HEAD', { ignoreReturnCode: true, silent: true });
                 if (diffIndex.exitCode !== 0) {
                     await execute('git commit --all -m "Google Java Format"');
-                    await execute('git push');
+                    await push();
                 } else core.info('Nothing to commit!')
             });
         }
