@@ -3,8 +3,6 @@ const exec = require('@actions/exec');
 const glob = require('@actions/glob');
 const github = require('@actions/github');
 const path = require('path');
-const { context } = require('@actions/github/lib/utils');
-const { release } = require('os');
 
 const owner = 'google';
 const repo = 'google-java-format';
@@ -60,7 +58,7 @@ async function curl(url, arguments) {
 }
 
 async function listGJFReleases() {
-    if (githubToken === undefined) {
+    if (!githubToken) {
         const releases = await curl(apiReleases);
         return JSON.parse(releases.stdOut);
     }
@@ -70,7 +68,7 @@ async function listGJFReleases() {
 }
 
 async function getRelease(releaseId) {
-    if (githubToken === undefined) {
+    if (!githubToken) {
         const url = `${apiReleases}/${releaseId}`;
         core.debug(`URL: ${urlRelease}`);
         const release = await execute(url);
