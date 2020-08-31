@@ -71,7 +71,7 @@ async function getRelease(releaseId) {
     if (!githubToken) {
         const url = `${apiReleases}/${releaseId}`;
         core.debug(`URL: ${url}`);
-        const release = await execute(url);
+        const release = await curl(url);
         return JSON.parse(release.stdOut);
     }
     const octokit = github.getOctokit(githubToken);
