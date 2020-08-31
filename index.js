@@ -8,7 +8,7 @@ const { release } = require('os');
 
 const owner = 'google';
 const repo = 'google-java-format';
-const githubToken = core.getInput('githubToken');
+const githubToken = core.getInput('githubToken', { required: false });
 const executable = path.join(process.env.HOME || process.env.USERPROFILE, 'google-java-format.jar');
 const apiReleases = `https://api.github.com/repos/${owner}/${repo}/releases`;
 
