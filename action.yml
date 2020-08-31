@@ -20,6 +20,9 @@ inputs:
   version:
     description: "Version of Google Java Format to use"
     required: false
+  githubToken:
+    description: "Recommended on MacOS machines"
+    required: false
 runs:
   using: "node12"
   main: "index.js"
