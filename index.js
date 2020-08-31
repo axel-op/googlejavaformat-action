@@ -70,7 +70,7 @@ async function listGJFReleases() {
 async function getRelease(releaseId) {
     if (!githubToken) {
         const url = `${apiReleases}/${releaseId}`;
-        core.debug(`URL: ${urlRelease}`);
+        core.debug(`URL: ${url}`);
         const release = await execute(url);
         return JSON.parse(release.stdOut);
     }
