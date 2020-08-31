@@ -36,6 +36,7 @@ jobs:
         with:
           java-version: ${{ matrix.java-version }}
       - uses: ./
+        continue-on-error: ${{ matrix.os == 'macos-latest' }}
         with:
           skipCommit: true
           version: ${{ matrix.version }}
