@@ -53,7 +53,7 @@ async function execute(command, { silent = false, ignoreReturnCode = false } = {
 
 async function curl(url, arguments) {
     let command = `curl -sL "${url}"`;
-    if (arguments !== undefined) command += ` ${arguments}`;
+    if (arguments) command += ` ${arguments}`;
     return await execute(command, { silent: !core.isDebug() });
 }
 
@@ -97,9 +97,9 @@ async function getReleaseId() {
     const findRelease = function (name) { return releases.find(r => r['name'] === name); };
     // Check if a specific version is requested
     const input = core.getInput('version');
-    if (input !== undefined && input !== '') {
+    if (input) {
         const release = findRelease(input);
-        if (release !== undefined) return release['id'];
+        if (release) return release['id'];
         core.warning(`Version "${input}" of Google Java Format cannot be found. Fallback to latest.`);
     }
     const javaVersion = await getJavaVersion();
@@ -110,14 +110,14 @@ async function getReleaseId() {
             // Versions after 1.7 require Java SDK 11+
             core.warning('Latest versions of Google Java Format require Java SDK 11 min. Fallback to Google Java Format 1.7.');
             releaseId = findRelease('1.7')['id'];
-            if (releaseId === undefined) throw 'Cannot find release id of Google Java Format 1.7';
+            if (!releaseId) throw 'Cannot find release id of Google Java Format 1.7';
         }
     }
     return releaseId;
 }
 
 async function push() {
-    if (githubToken === undefined) await execute('git push');
+    if (!githubToken) await execute('git push');
     else {
         const env = process.env;
         const remote = `https://${env.GITHUB_ACTOR}:${githubToken}@github.com/${env.GITHUB_REPOSITORY}.git`;
