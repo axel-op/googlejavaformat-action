@@ -23,6 +23,9 @@ inputs:
   githubToken:
     description: "Recommended on MacOS machines"
     required: false
+  commitMessage:
+    description: "Optional commit message"
+    required: false
 runs:
   using: "node12"
   main: "index.js"

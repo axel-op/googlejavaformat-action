@@ -56,6 +56,10 @@ A pattern to match the files to format. The default is `**/*.java`, which means 
 
 Set to `true` if you don't want the changes to be committed by this action. Default: `false`.
 
+### `commitMessage`
+
+You can optionally also specify a custom commit message. Default: `Google Java Format`.
+
 ### `args`
 
 The arguments to pass to the Google Java Format executable.
