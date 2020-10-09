@@ -24,8 +24,9 @@ inputs:
     description: "Recommended on MacOS machines"
     required: false
   commitMessage:
-    description: "Optional commit message"
+    description: "Commit message"
     required: false
+    default: "Google Java Format"
 runs:
   using: "node12"
   main: "index.js"
