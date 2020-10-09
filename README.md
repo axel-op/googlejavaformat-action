@@ -58,7 +58,7 @@ Set to `true` if you don't want the changes to be committed by this action. Defa
 
 ### `commitMessage`
 
-You can optionally also specify a custom commit message. Default: `Google Java Format`.
+You can specify a custom commit message. Default: `Google Java Format`.
 
 ### `args`
 
