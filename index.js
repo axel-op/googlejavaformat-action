@@ -7,6 +7,7 @@ const path = require('path');
 const owner = 'google';
 const repo = 'google-java-format';
 const githubToken = core.getInput('githubToken', { required: false });
+const commitMessage = core.getInput('commitMessage', { required: false });
 const executable = path.join(process.env.HOME || process.env.USERPROFILE, 'google-java-format.jar');
 const apiReleases = `https://api.github.com/repos/${owner}/${repo}/releases`;
 
@@ -158,7 +159,7 @@ async function run() {
                 await execute("git config user.email ''", { silent: true });
                 const diffIndex = await execute('git diff-index --quiet HEAD', { ignoreReturnCode: true, silent: true });
                 if (diffIndex.exitCode !== 0) {
-                    await execute('git commit --all -m "Google Java Format"');
+                    await execute(`git commit --all -m "${commitMessage ? commitMessage : 'Google Java Format'}"`);
                     await push();
                 } else core.info('Nothing to commit!')
             });
