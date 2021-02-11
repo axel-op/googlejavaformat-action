@@ -95,7 +95,7 @@ async function getReleaseId() {
     let releaseId = 'latest';
     const releases = await listGJFReleases();
     core.debug(`releases is ${typeof releases}`);
-    const findRelease = function (name) { return releases.find(r => r['name'] === name); };
+    const findRelease = (name) => releases.find(r => r['name'] === name);
     // Check if a specific version is requested
     const input = core.getInput('version');
     if (input) {
@@ -133,9 +133,9 @@ async function run() {
         await core.group('Downloading Google Java Format', async () => {
             let release = await getRelease(releaseId)
             core.debug(`release is ${typeof release}`);
-            const assets = release['assets'];
+            const assets = release.assets;
             core.debug(`assets is ${typeof assets}`);
-            const downloadUrl = assets.find(asset => asset['name'].endsWith('all-deps.jar'))['browser_download_url'];
+            const downloadUrl = assets.find(asset => asset.name.endsWith('all-deps.jar')).browser_download_url;
             core.info(`Downloading executable to ${executable}`);
             await curl(downloadUrl, `-o ${executable}`)
             await executeGJF(['--version']);
@@ -159,7 +159,7 @@ async function run() {
                 await execute("git config user.email ''", { silent: true });
                 const diffIndex = await execute('git diff-index --quiet HEAD', { ignoreReturnCode: true, silent: true });
                 if (diffIndex.exitCode !== 0) {
-                    await execute(`git commit --all -m "${commitMessage ? commitMessage : 'Google Java Format'}"`);
+                    await execute(`git commit --all -m "${commitMessage || 'Google Java Format'}"`);
                     await push();
                 } else core.info('Nothing to commit!')
             });
