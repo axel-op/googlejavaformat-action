@@ -56,6 +56,10 @@ Set to `true` if you don't want the changes to be committed by this action. Defa
 
 You can specify a custom commit message. Default: `Google Java Format`.
 
+### `commitAsAuthor`
+
+Set to `true` if you want to commit as user triggered thos workflow run. Default: `false`, commit as GitHub Actions.
+
 ### `args`
 
 The arguments to pass to the Google Java Format executable.
