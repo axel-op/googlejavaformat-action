@@ -117,6 +117,17 @@ async function getReleaseId() {
     return releaseId;
 }
 
+async function getCommitAuthor() {
+    const commitAsAuthor = core.getInput('commitAsAuthor', { required: false }) === 'true' ? true : false
+
+    if (commitAsAuthor) {
+        const env = process.env;
+        return `--author=${env.GITHUB_ACTOR}" <${env.GITHUB_ACTOR}@users.noreply.github.com>"`;
+    } else {
+        return '';
+    }
+}
+
 async function push() {
     if (!githubToken) await execute('git push');
     else {
@@ -159,7 +170,8 @@ async function run() {
                 await execute("git config user.email ''", { silent: true });
                 const diffIndex = await execute('git diff-index --quiet HEAD', { ignoreReturnCode: true, silent: true });
                 if (diffIndex.exitCode !== 0) {
-                    await execute(`git commit --all -m "${commitMessage ? commitMessage : 'Google Java Format'}"`);
+                    const commitAuthor = await getCommitAuthor();
+                    await execute(`git commit --all -m "${commitMessage ? commitMessage : 'Google Java Format'}" ${commitAuthor}`);
                     await push();
                 } else core.info('Nothing to commit!')
             });

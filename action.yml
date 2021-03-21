@@ -27,6 +27,10 @@ inputs:
     description: "Commit message"
     required: false
     default: "Google Java Format"
+  commitAsAuthor:
+    description: "Set \"true\" to set commit author as the user triggered this workflow run."
+    required: false
+    default: "false"
 runs:
   using: "node12"
   main: "index.js"
