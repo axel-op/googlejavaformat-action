@@ -84,9 +84,9 @@ async function getJavaVersion() {
     let javaVersion = await execute('java -version', { silent: !core.isDebug() });
     javaVersion = javaVersion.stdErr
         .split('\n')[0]
-        .match(RegExp('[0-9\.]+'))[0];
+        .match(RegExp(/[0-9\.]+/))[0];
     core.debug(`Extracted version number: ${javaVersion}`);
-    if (javaVersion.startsWith('1.')) javaVersion = javaVersion.replace(RegExp('^1\.'), '');
+    if (javaVersion.startsWith('1.')) javaVersion = javaVersion.replace(RegExp(/^1\./), '');
     javaVersion = javaVersion.split('\.')[0];
     return parseInt(javaVersion);
 }
