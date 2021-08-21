@@ -19,8 +19,15 @@ class ExecResult {
     }
 }
 
-async function executeGJF(args) {
-    const arguments = ['-jar', executable].concat(args);
+async function executeGJF(args = []) {
+    const arguments = [];
+    const javaVersion = await getJavaVersion();
+    // see https://github.com/google/google-java-format#jdk-16
+    if (javaVersion !== undefined && javaVersion >= 11)
+        arguments.push(...['api', 'file', 'parser', 'tree', 'util']
+            .flatMap(l => ['--add-exports', `jdk.compiler/com.sun.tools.javac.${l}=ALL-UNNAMED`]));
+    arguments.push('-jar', executable);
+    arguments.push(...args);
     const options = {
         cwd: process.env.GITHUB_WORKSPACE,
         ignoreReturnCode: true
