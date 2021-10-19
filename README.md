@@ -4,11 +4,13 @@ Automatically format your Java files using [Google Java Style guidelines](https:
 
 This action automatically downloads the latest release of the [Google Java Format](https://github.com/google/google-java-format) program.
 
-If some files need to be formatted, this action will push a commit with the modifications (unless you set the `skipCommit` input to `true`, or use the `--dry-run` argument, see below).
+This action can format your files and push the changes, or just check the formatting without committing anything.
 
 You must checkout your repository with `actions/checkout` before calling this action (see the example).
 
-## Example
+## Examples
+
+Format all Java files in the repository and commit the changes:
 
 ```yml
 # Example workflow
@@ -30,6 +32,25 @@ jobs:
           args: "--skip-sorting-imports --replace"
           # Recommended if you use MacOS:
           # githubToken: ${{ secrets.GITHUB_TOKEN }}
+```
+
+Check if the formatting is correct without pushing anything:
+
+```yml
+# Example workflow
+name: Format
+
+on: [push, pull_request]
+
+jobs:
+
+  formatting:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2 # v2 minimum required
+      - uses: axel-op/googlejavaformat-action@v3
+        with:
+          args: "--set-exit-if-changed"
 ```
 
 ## Inputs
