@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
+    "prepare": "ncc build index.js -o dist",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
