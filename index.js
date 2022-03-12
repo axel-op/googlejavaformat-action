@@ -151,11 +151,15 @@ async function run() {
         // Execute Google Java Format with provided arguments
         const args = core.getInput('args').split(' ');
         core.debug(`Arguments: ${args}`);
+        const exclude = core.getInput('files-excluded');
+        const excludeRex = exclude && new RegExp(exclude);
         const files = await (await glob.create(core.getInput('files'))).glob();
         core.debug(`Files:`);
         for (const file of files) {
-            core.debug(`* ${file}`);
-            args.push(file);
+            if (!excludeRex || !excludeRex.test(file)) {
+                core.debug(`* ${file}`);
+                args.push(file);
+            }
         }
         await executeGJF(args);
 

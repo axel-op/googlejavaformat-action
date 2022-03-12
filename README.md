@@ -69,6 +69,10 @@ Set this input to use a [specific version of Google Java Format](https://github.
 
 A pattern to match the files to format. The default is `**/*.java`, which means that all Java files in your repository will be formatted.
 
+### `files-excluded`
+
+A pattern to match the files to be ignored. Optional.
+
 ### `skipCommit`
 
 Set to `true` if you don't want the changes to be committed by this action. Default: `false`.

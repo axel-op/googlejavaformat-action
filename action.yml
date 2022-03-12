@@ -10,9 +10,12 @@ inputs:
     required: false
     default: "--replace"
   files:
-    description: "Pattern to match files to be formatted"
+    description: "Pattern to match the files to be formatted"
     required: false
     default: "**/*.java"
+  files-excluded:
+    description: "Pattern to match the files to be ignored by this action"
+    required: false
   skipCommit:
     description: "Set to true to not commit the changes"
     required: false
@@ -29,4 +32,4 @@ inputs:
     default: "Google Java Format"
 runs:
   using: "node12"
-  main: "index.js"
+  main: "dist/index.js"
