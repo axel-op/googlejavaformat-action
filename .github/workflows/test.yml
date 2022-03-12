@@ -4,6 +4,7 @@ on: [push, pull_request]
 
 jobs:
   tests-with-token:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.owner.login == 'axel-op'
     strategy:
       fail-fast: false
       matrix:
@@ -21,7 +22,7 @@ jobs:
           skipCommit: true
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           version: ${{ matrix.version }}
-  
+
   tests-without-token:
     strategy:
       fail-fast: false
