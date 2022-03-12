@@ -71,7 +71,10 @@ async function listGJFReleases() {
         return JSON.parse(releases.stdOut);
     }
     const octokit = github.getOctokit(githubToken);
-    const releases = await octokit.repos.listReleases({ owner: owner, repo: repo });
+    const releases = await octokit.rest.repos.listReleases({
+        owner: owner,
+        repo: repo
+    });
     return releases.data;
 }
 
@@ -83,7 +86,11 @@ async function getRelease(releaseId) {
         return JSON.parse(release.stdOut);
     }
     const octokit = github.getOctokit(githubToken);
-    const release = await octokit.repos.getRelease({ owner: owner, repo: repo, release_id: releaseId });
+    const release = await octokit.rest.repos.getRelease({
+        owner: owner,
+        repo: repo,
+        release_id: releaseId
+    });
     return release.data;
 }
 
