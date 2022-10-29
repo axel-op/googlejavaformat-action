@@ -87,44 +87,41 @@ The arguments to pass to the Google Java Format executable.
 By default, only `--replace` is used.
 
 ```console
--i, -r, -replace, --replace
-  Send formatted output back to files, not stdout.
+Options:
+  -i, -r, -replace, --replace
+    Send formatted output back to files, not stdout.
+  --aosp, -aosp, -a
+    Use AOSP style instead of Google Style (4-space indentation).
+  --fix-imports-only
+    Fix import order and remove any unused imports, but do no other formatting.
+  --skip-sorting-imports
+    Do not fix the import order. Unused imports will still be removed.
+  --skip-removing-unused-imports
+    Do not remove unused imports. Imports will still be sorted.
+  --skip-reflowing-long-strings
+    Do not reflow string literals that exceed the column limit.
+  --skip-javadoc-formatting
+    Do not reformat javadoc.
+  --dry-run, -n
+    Prints the paths of the files whose contents would change if the formatter were run normally.
+  --set-exit-if-changed
+    Return exit code 1 if there are any formatting changes.
+  --lines, -lines, --line, -line
+    Line range(s) to format, like 5:10 (1-based; default is all).
+  --offset, -offset
+    Character offset to format (0-based; default is all).
+  --length, -length
+    Character length to format.
+  --help, -help, -h
+    Print this usage statement.
+  --version, -version, -v
+    Print the version.
+  @<filename>
+    Read options and filenames from file.
 
---assume-filename, -assume-filename
-  File name to use for diagnostics when formatting standard input (default is <stdin>).
-
---aosp, -aosp, -a
-  Use AOSP style instead of Google Style (4-space indentation).
-
---fix-imports-only
-  Fix import order and remove any unused imports, but do no other formatting.
-
---skip-sorting-imports
-  Do not fix the import order. Unused imports will still be removed.
-
---skip-removing-unused-imports
-  Do not remove unused imports. Imports will still be sorted.
-
---skip-reflowing-long-strings
-  (JDK 11+) Do not reflow string literals that exceed the column limit.
-
---skip-javadoc-formatting
-  (JDK 11+) Do not reformat javadoc.
-
---dry-run, -n
-  Prints the paths of the files whose contents would change if the formatter were run normally.
-
---set-exit-if-changed
-  Return exit code 1 if there are any formatting changes.
-
---length, -length
-  Character length to format.
-
---lines, -lines, --line, -line
-  Line range(s) to format, like 5:10 (1-based; default is all).
-
---offset, -offset
-  Character offset to format (0-based; default is all).
+The --lines, --offset, and --length flags may be given more than once.
+The --offset and --length flags must be given an equal number of times.
+If --lines, --offset, or --length are given, only one file may be given.
 ```
 
 Note:
