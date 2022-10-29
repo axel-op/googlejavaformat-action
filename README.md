@@ -13,20 +13,18 @@ You must checkout your repository with `actions/checkout` before calling this ac
 Format all Java files in the repository and commit the changes:
 
 ```yml
-# Example workflow
 name: Format
 
 on:
   push:
-    branches:
-      - master
+    branches: [ master ]
 
 jobs:
 
   formatting:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2 # v2 minimum required
+      - uses: actions/checkout@v3 # v2 minimum required
       - uses: axel-op/googlejavaformat-action@v3
         with:
           args: "--skip-sorting-imports --replace"
@@ -37,20 +35,40 @@ jobs:
 Check if the formatting is correct without pushing anything:
 
 ```yml
-# Example workflow
 name: Format
 
-on: [push, pull_request]
+on: [ push, pull_request ]
 
 jobs:
 
   formatting:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2 # v2 minimum required
+      - uses: actions/checkout@v3 # v2 minimum required
       - uses: axel-op/googlejavaformat-action@v3
         with:
           args: "--set-exit-if-changed"
+```
+
+Print the diff of every incorrectly formatted file, and fail if there is any:
+
+```yml
+name: Format
+
+on: [ push, pull_request ]
+
+jobs:
+
+  formatting:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3 # v2 minimum required
+      - uses: axel-op/googlejavaformat-action@v3
+        with:
+          args: "--replace"
+          skipCommit: true
+      - name: Print diffs
+        run: git --no-pager diff --exit-code
 ```
 
 ## Inputs
