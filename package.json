@@ -4,7 +4,6 @@
   "description": "Automatically format your Java files using Google Java Style guidelines.",
   "main": "index.js",
   "scripts": {
-    "build": "tsc",
     "prepare": "ncc build index.js -o dist",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
