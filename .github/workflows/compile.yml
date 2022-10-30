@@ -2,14 +2,13 @@ name: Compile and push dist file
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
 
 jobs:
   compile-and-push:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-
       - name: Compile with ncc
         run: |
           npm install
