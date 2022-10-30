@@ -19,8 +19,8 @@ jobs:
           java-version: ${{ matrix.java-version }}
       - uses: ./
         with:
-          skipCommit: true
-          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          skip-commit: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           version: ${{ matrix.version }}
 
   tests-without-token:
@@ -39,5 +39,5 @@ jobs:
       - uses: ./
         continue-on-error: ${{ matrix.os == 'macos-latest' }}
         with:
-          skipCommit: true
+          skip-commit: true
           version: ${{ matrix.version }}

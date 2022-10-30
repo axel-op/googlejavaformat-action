@@ -29,7 +29,7 @@ jobs:
         with:
           args: "--skip-sorting-imports --replace"
           # Recommended if you use MacOS:
-          # githubToken: ${{ secrets.GITHUB_TOKEN }}
+          # github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 Check if the formatting is correct without pushing anything:
@@ -66,7 +66,7 @@ jobs:
       - uses: axel-op/googlejavaformat-action@v3
         with:
           args: "--replace"
-          skipCommit: true
+          skip-commit: true
       - name: Print diffs
         run: git --no-pager diff --exit-code
 ```
@@ -75,7 +75,7 @@ jobs:
 
 None of these inputs is required, but you can add them to change the behavior of this action.
 
-### `githubToken`
+### `github-token`
 
 **Recommended if you execute this action on MacOS**. Due to [this issue](https://github.com/actions/virtual-environments/issues/602), calling the GitHub API from a MacOS machine can result in an error because of a rate limit. To overcome this, provide the [`GITHUB_TOKEN`](https://docs.github.com/en/actions/configuring-and-managing-workflows/authenticating-with-the-github_token) to authenticate these calls. If you provide it, it will also be used to authenticate the commits made by this action.
 
@@ -91,11 +91,11 @@ A pattern to match the files to format. The default is `**/*.java`, which means 
 
 A pattern to match the files to be ignored. Optional.
 
-### `skipCommit`
+### `skip-commit`
 
 Set to `true` if you don't want the changes to be committed by this action. Default: `false`.
 
-### `commitMessage`
+### `commit-message`
 
 You can specify a custom commit message. Default: `Google Java Format`.
 

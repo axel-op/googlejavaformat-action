@@ -4,10 +4,23 @@ const glob = require('@actions/glob');
 const github = require('@actions/github');
 const path = require('path');
 
+function getInput(inputAlternativeNames, { required = false } = {}) {
+    if (!(inputAlternativeNames && inputAlternativeNames.length)) throw new Error("inputAlternativeNames is empty");
+    let val = "";
+    for (const [i, inputName] of inputAlternativeNames.entries()) {
+        val = core.getInput(inputName, {
+            required: required && i === inputAlternativeNames.length - 1
+        });
+        core.debug(`${val ? "Value" : "No value"} provided for input "${inputName}"`);
+        if (val) break;
+    }
+    return val;
+}
+
 const owner = 'google';
 const repo = 'google-java-format';
-const githubToken = core.getInput('githubToken', { required: false });
-const commitMessage = core.getInput('commitMessage', { required: false });
+const githubToken = getInput(['githubToken', 'github-token'], { required: false });
+const commitMessage = getInput(['commitMessage', 'commit-message'], { required: false });
 const executable = path.join(process.env.HOME || process.env.USERPROFILE, 'google-java-format.jar');
 const apiReleases = `https://api.github.com/repos/${owner}/${repo}/releases`;
 
@@ -171,7 +184,7 @@ async function run() {
         await executeGJF(args);
 
         // Commit changed files if there are any and if skipCommit != true
-        if (core.getInput('skipCommit').toLowerCase() !== 'true') {
+        if (getInput(['skipCommit', 'skip-commit']).toLowerCase() !== 'true') {
             await core.group('Committing changes', async () => {
                 await execute('git config user.name github-actions', { silent: true });
                 await execute("git config user.email ''", { silent: true });
