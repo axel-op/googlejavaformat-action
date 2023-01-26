@@ -77,7 +77,7 @@ None of these inputs is required, but you can add them to change the behavior of
 
 ### `github-token`
 
-**Recommended if you execute this action on MacOS**. Due to [this issue](https://github.com/actions/virtual-environments/issues/602), calling the GitHub API from a MacOS machine can result in an error because of a rate limit. To overcome this, provide the [`GITHUB_TOKEN`](https://docs.github.com/en/actions/configuring-and-managing-workflows/authenticating-with-the-github_token) to authenticate these calls. If you provide it, it will also be used to authenticate the commits made by this action.
+**Recommended if you execute this action from GitHub-hosted MacOS runners or from [self-hosted runners](https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/about-self-hosted-runners)**. Because of [IP-address based rate limiting](https://github.com/actions/virtual-environments/issues/602), calling the GitHub API from any small pool of IPs, [including the GitHub-hosted MacOS runners](https://github.com/actions/runner-images/issues/602#issuecomment-602472951), can result in an error. To overcome this, provide the [`GITHUB_TOKEN`](https://docs.github.com/en/actions/configuring-and-managing-workflows/authenticating-with-the-github_token) to authenticate these calls. If you provide it, it will also be used to authenticate the commits made by this action.
 
 ### `version`
 
