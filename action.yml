@@ -16,10 +16,6 @@ inputs:
   files-excluded:
     description: "Pattern to match the files to be ignored by this action"
     required: false
-  skipCommit:
-    description: "By default, this action commits any change made to the files. Set to \"true\" to skip this commit."
-    required: false
-    deprecationMessage: "Use \"skip-commit\" instead"
   skip-commit:
     description: "By default, this action commits any change made to the files. Set to \"true\" to skip this commit."
     required: false
@@ -27,17 +23,9 @@ inputs:
   version:
     description: "Version of Google Java Format to use"
     required: false
-  githubToken:
-    description: "If provided, will be used to authenticate the calls to the GitHub API."
-    required: false
-    deprecationMessage: "Use \"github-token\" instead"
   github-token:
     description: "If provided, will be used to authenticate the calls to the GitHub API."
     required: false
-  commitMessage:
-    description: "This message will be used for commits made by this action"
-    required: false
-    deprecationMessage: "Use \"commit-message\" instead"
   commit-message:
     description: "This message will be used for commits made by this action"
     required: false
