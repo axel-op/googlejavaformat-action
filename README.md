@@ -24,7 +24,7 @@ jobs:
   formatting:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3 # v2 minimum required
+      - uses: actions/checkout@v4 # v2 minimum required
       - uses: axel-op/googlejavaformat-action@v3
         with:
           args: "--skip-sorting-imports --replace"
@@ -44,7 +44,7 @@ jobs:
   formatting:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3 # v2 minimum required
+      - uses: actions/checkout@v4 # v2 minimum required
       - uses: axel-op/googlejavaformat-action@v3
         with:
           args: "--set-exit-if-changed"
@@ -62,7 +62,7 @@ jobs:
   formatting:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3 # v2 minimum required
+      - uses: actions/checkout@v4 # v2 minimum required
       - uses: axel-op/googlejavaformat-action@v3
         with:
           args: "--replace"
