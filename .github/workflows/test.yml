@@ -17,9 +17,9 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: ${{ matrix.java-version }}
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 20 
       - name: Compile
         run: npm install && npx ncc build index.js -o dist
       - uses: ./
@@ -41,9 +41,9 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: ${{ matrix.java-version }}
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 20 
       - name: Compile
         run: npm install && npx ncc build index.js -o dist
       - uses: ./
