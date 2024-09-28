@@ -30,5 +30,5 @@ inputs:
     description: "This message will be used for commits made by this action"
     required: false
 runs:
-  using: "node16"
+  using: "node20"
   main: "dist/index.js"
