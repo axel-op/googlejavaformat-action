@@ -4,7 +4,7 @@
   "description": "Automatically format your Java files using Google Java Style guidelines.",
   "main": "index.js",
   "scripts": {
-    "prepare": "ncc build index.js -o dist",
+    "prepare": "ncc build index.ts -o dist",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -19,12 +19,14 @@
   },
   "homepage": "https://github.com/axel-op/googlejavaformat-action#readme",
   "dependencies": {
-    "@actions/core": "^1.9.1",
+    "@actions/core": "^1.11.1",
     "@actions/exec": "^1.1.0",
     "@actions/github": "^5.0.0",
-    "@actions/glob": "^0.2.0"
+    "@actions/glob": "^0.2.0",
+    "typescript": "^5.7.3"
   },
   "devDependencies": {
+    "@types/node": "^22.13.1",
     "@vercel/ncc": "^0.38.1"
   }
 }

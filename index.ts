@@ -1,11 +1,11 @@
-const core = require('@actions/core');
-const exec = require('@actions/exec');
-const glob = require('@actions/glob');
-const github = require('@actions/github');
-const path = require('path');
+import * as core from '@actions/core';
+import * as exec from '@actions/exec';
+import * as glob from '@actions/glob';
+import * as github from '@actions/github';
+import * as path from 'path';
 
-function getInput(inputAlternativeNames, { required = false } = {}) {
-    if (!(inputAlternativeNames && inputAlternativeNames.length)) throw new Error("inputAlternativeNames is empty");
+function getInput(inputAlternativeNames: string[], { required = false } = {}) {
+    if (inputAlternativeNames.length === 0) throw new Error("inputAlternativeNames is empty");
     let val = "";
     for (const [i, inputName] of inputAlternativeNames.entries()) {
         val = core.getInput(inputName, {
@@ -21,40 +21,38 @@ const owner = 'google';
 const repo = 'google-java-format';
 const githubToken = getInput(['githubToken', 'github-token'], { required: false });
 const commitMessage = getInput(['commitMessage', 'commit-message'], { required: false });
-const executable = path.join(process.env.HOME || process.env.USERPROFILE, 'google-java-format.jar');
+const executable = path.join((process.env.HOME || process.env.USERPROFILE)!, 'google-java-format.jar');
 const apiReleases = `https://api.github.com/repos/${owner}/${repo}/releases`;
 
-class ExecResult {
-    constructor(exitCode, stdOut, stdErr) {
-        this.exitCode = exitCode;
-        this.stdOut = stdOut;
-        this.stdErr = stdErr;
-    }
+interface ExecResult {
+    exitCode: number;
+    stdOut: string;
+    stdErr: string;
 }
 
-async function executeGJF(args = []) {
-    const arguments = [];
+async function executeGJF(args: string[] = []) {
+    const allArgs = new Array<string>();
     const javaVersion = await getJavaVersion();
     // see https://github.com/google/google-java-format#jdk-16
     if (javaVersion !== undefined && javaVersion >= 11)
-        arguments.push(...['api', 'file', 'parser', 'tree', 'util']
+        allArgs.push(...['api', 'file', 'parser', 'tree', 'util']
             .flatMap(l => ['--add-exports', `jdk.compiler/com.sun.tools.javac.${l}=ALL-UNNAMED`]));
-    arguments.push('-jar', executable);
-    arguments.push(...args);
+    allArgs.push('-jar', executable);
+    allArgs.push(...args);
     const options = {
         cwd: process.env.GITHUB_WORKSPACE,
         ignoreReturnCode: true
     }
-    const exitCode = await exec.exec('java', arguments, options);
+    const exitCode = await exec.exec('java', allArgs, options);
     if (exitCode !== 0) {
         throw `Google Java Format failed with exit code ${exitCode}`;
     }
 }
 
-async function execute(command, { silent = false, ignoreReturnCode = false } = {}) {
+async function execute(command: string, { silent = false, ignoreReturnCode = false } = {}): Promise<ExecResult> {
     let stdErr = '';
     let stdOut = '';
-    const options = {
+    const options: exec.ExecOptions = {
         silent: silent,
         ignoreReturnCode: true,
         listeners: {
@@ -63,18 +61,18 @@ async function execute(command, { silent = false, ignoreReturnCode = false } = {
         }
     };
     core.debug(`Executing: ${command}`);
-    const exitCode = await exec.exec(command, null, options);
+    const exitCode = await exec.exec(command, undefined, options);
     core.debug(`Exit code: ${exitCode}`);
     if (!ignoreReturnCode && exitCode !== 0) {
         command = command.split(' ')[0];
         throw `The command '${command}' failed with exit code ${exitCode}`;
     }
-    return new ExecResult(exitCode, stdOut, stdErr);
+    return { exitCode, stdOut, stdErr };
 }
 
-async function curl(url, arguments) {
+async function curl(url: string, args?: string) {
     let command = `curl -sL "${url}"`;
-    if (arguments) command += ` ${arguments}`;
+    if (args) command += ` ${args}`;
     return await execute(command, { silent: !core.isDebug() });
 }
 
@@ -91,7 +89,7 @@ async function listGJFReleases() {
     return releases.data;
 }
 
-async function getRelease(releaseId) {
+async function getRelease(releaseId: number) {
     if (!githubToken) {
         const url = `${apiReleases}/${releaseId}`;
         core.debug(`URL: ${url}`);
@@ -108,21 +106,23 @@ async function getRelease(releaseId) {
 }
 
 async function getJavaVersion() {
-    let javaVersion = await execute('java -version', { silent: !core.isDebug() });
-    javaVersion = javaVersion.stdErr
+    const javaVersion = await execute('java -version', { silent: !core.isDebug() });
+    let versionNumber = javaVersion.stdErr
         .split('\n')[0]
-        .match(RegExp(/[0-9\.]+/))[0];
-    core.debug(`Extracted version number: ${javaVersion}`);
-    if (javaVersion.startsWith('1.')) javaVersion = javaVersion.replace(RegExp(/^1\./), '');
-    javaVersion = javaVersion.split('\.')[0];
-    return parseInt(javaVersion);
+        .match(RegExp(/[0-9\.]+/))?.[0];
+    if (!versionNumber) throw new Error("Cannot find Java version number");
+    core.debug(`Extracted version number: ${versionNumber}`);
+    if (versionNumber.startsWith('1.')) versionNumber = versionNumber.replace(RegExp(/^1\./), '');
+    versionNumber = versionNumber.split('\.')[0];
+    return parseInt(versionNumber);
 }
 
 async function getReleaseId() {
     let releaseId = 'latest';
     const releases = await listGJFReleases();
     core.debug(`releases is ${typeof releases}`);
-    const findRelease = function (name) { return releases.find(r => r['name'] === name); };
+    // TODO model type
+    const findRelease = function (name: string) { return releases.find((r: any) => r['name'] === name); };
     // Check if a specific version is requested
     const input = core.getInput('version');
     if (input) {
@@ -162,7 +162,8 @@ async function run() {
             core.debug(`release is ${typeof release}`);
             const assets = release['assets'];
             core.debug(`assets is ${typeof assets}`);
-            const downloadUrl = assets.find(asset => asset['name'].endsWith('all-deps.jar'))['browser_download_url'];
+            // TODO model type of asset
+            const downloadUrl = assets.find((asset: any) => asset['name'].endsWith('all-deps.jar'))['browser_download_url'];
             core.info(`Downloading executable to ${executable}`);
             await curl(downloadUrl, `-o ${executable}`)
             await executeGJF(['--version']);

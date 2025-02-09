@@ -21,7 +21,9 @@ jobs:
         with:
           node-version: 20 
       - name: Compile
-        run: npm install && npx ncc build index.js -o dist
+        run: |
+          npm install
+          npx tsc
       - uses: ./
         with:
           skip-commit: true
@@ -45,7 +47,9 @@ jobs:
         with:
           node-version: 20 
       - name: Compile
-        run: npm install && npx ncc build index.js -o dist
+        run: |
+          npm install
+          npx tsc
       - uses: ./
         continue-on-error: ${{ matrix.os == 'macos-latest' }}
         with:
