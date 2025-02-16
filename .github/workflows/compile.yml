@@ -15,7 +15,7 @@ jobs:
       - name: Compile with ncc
         run: |
           npm install
-          npx ncc build index.ts -o dist
+          npx ncc build src/index.ts -o dist
       - name: Push
         env:
           DIR: dist
