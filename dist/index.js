@@ -35037,10 +35037,10 @@ function wrapExecutor(wrapped) {
                 stderr: (data) => stdErr += data.toString(),
             }
         };
-        core.debug(`Executing: ${command}`);
-        const exitCode = await wrapped(command, args, opts);
         const commandStr = `${command} ${args?.join(' ')}`.trim();
-        core.debug(`Command ${commandStr} terminated with exit code ${exitCode}`);
+        core.debug(`Executing: ${commandStr}`);
+        const exitCode = await wrapped(command, args, opts);
+        core.debug(`Command '${commandStr}' terminated with exit code ${exitCode}`);
         if (!(options?.ignoreReturnCode ?? true) && exitCode !== 0) {
             throw new Error(`Command '${commandStr}' failed with exit code ${exitCode}`);
         }
@@ -35206,16 +35206,17 @@ class Main {
     gitOperations;
     githubToken;
     executablePath;
-    constructor(executor) {
+    constructor(executor, executablePath = path.join((process.env.HOME || process.env.USERPROFILE), 'google-java-format.jar')) {
         this.execute = executor;
         this.gitOperations = new git_1.GitOperations(executor);
         this.githubToken = getInput(['githubToken', 'github-token']);
         const octokit = this.githubToken ? github.getOctokit(this.githubToken) : undefined;
         this.releases = new releases_1.Releases(executor, octokit);
-        this.executablePath = path.join((process.env.HOME || process.env.USERPROFILE), 'google-java-format.jar');
+        this.executablePath = executablePath;
     }
     async getJavaVersion() {
-        const javaVersion = await this.execute('java', ['-version'], { silent: !core.isDebug(), ignoreReturnCode: false });
+        const javaVersion = await this.execute('java', ['-version'], { silent: true, ignoreReturnCode: false });
+        core.debug(javaVersion.stdErr);
         let versionNumber = javaVersion.stdErr
             .split('\n')[0]
             .match(RegExp(/[0-9\.]+/))?.[0];
@@ -35227,14 +35228,15 @@ class Main {
         versionNumber = versionNumber.split('\.')[0];
         return parseInt(versionNumber);
     }
-    async executeGJF(javaVersion, args = []) {
+    async executeGJF(javaVersion, userArgs = []) {
+        const args = new Array();
         // see https://github.com/google/google-java-format#jdk-16
         if (javaVersion >= 11) {
             const modules = ['api', 'file', 'parser', 'tree', 'util'];
             const exports = modules.flatMap(l => ['--add-exports', `jdk.compiler/com.sun.tools.javac.${l}=ALL-UNNAMED`]);
-            args = exports.concat(args);
+            args.push(...exports);
         }
-        args = args.concat(['-jar', this.executablePath, ...args]);
+        args.push('-jar', this.executablePath, ...userArgs);
         const options = { ignoreReturnCode: false };
         return await this.execute('java', args, options);
     }
