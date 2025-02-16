@@ -3,6 +3,18 @@ name: Test
 on: [push, pull_request]
 
 jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Test
+        run: |
+          npm install
+          npm test
+
   tests-with-token:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.owner.login == 'axel-op'
     strategy:

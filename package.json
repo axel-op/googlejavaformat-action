@@ -4,8 +4,8 @@
   "description": "Automatically format your Java files using Google Java Style guidelines.",
   "main": "index.js",
   "scripts": {
-    "prepare": "ncc build index.ts -o dist",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "prepare": "ncc build src/index.ts -o dist",
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -26,7 +26,13 @@
     "typescript": "^5.7.3"
   },
   "devDependencies": {
+    "@babel/core": "^7.26.8",
+    "@babel/preset-env": "^7.26.8",
+    "@babel/preset-typescript": "^7.26.0",
+    "@jest/globals": "^29.7.0",
     "@types/node": "^22.13.1",
-    "@vercel/ncc": "^0.38.1"
+    "@vercel/ncc": "^0.38.1",
+    "babel-jest": "^29.7.0",
+    "jest": "^29.7.0"
   }
 }

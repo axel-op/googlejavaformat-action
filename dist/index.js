@@ -1,7 +1,7 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 7351:
+/***/ 5241:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -143,7 +143,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.platform = exports.toPlatformPath = exports.toWin32Path = exports.toPosixPath = exports.markdownSummary = exports.summary = exports.getIDToken = exports.getState = exports.saveState = exports.group = exports.endGroup = exports.startGroup = exports.info = exports.notice = exports.warning = exports.error = exports.debug = exports.isDebug = exports.setFailed = exports.setCommandEcho = exports.setOutput = exports.getBooleanInput = exports.getMultilineInput = exports.getInput = exports.addPath = exports.setSecret = exports.exportVariable = exports.ExitCode = void 0;
-const command_1 = __nccwpck_require__(7351);
+const command_1 = __nccwpck_require__(5241);
 const file_command_1 = __nccwpck_require__(717);
 const utils_1 = __nccwpck_require__(5278);
 const os = __importStar(__nccwpck_require__(2037));
@@ -1264,7 +1264,7 @@ const os = __importStar(__nccwpck_require__(2037));
 const events = __importStar(__nccwpck_require__(2361));
 const child = __importStar(__nccwpck_require__(2081));
 const path = __importStar(__nccwpck_require__(1017));
-const io = __importStar(__nccwpck_require__(7436));
+const io = __importStar(__nccwpck_require__(7351));
 const ioUtil = __importStar(__nccwpck_require__(1962));
 const timers_1 = __nccwpck_require__(9512);
 /* eslint-disable @typescript-eslint/unbound-method */
@@ -4279,7 +4279,7 @@ exports.getCmdPath = getCmdPath;
 
 /***/ }),
 
-/***/ 7436:
+/***/ 7351:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -34970,7 +34970,20 @@ function wrappy (fn, cb) {
 
 /***/ }),
 
-/***/ 4177:
+/***/ 8032:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.repositoryName = exports.repositoryOwner = void 0;
+exports.repositoryOwner = 'google';
+exports.repositoryName = 'google-java-format';
+
+
+/***/ }),
+
+/***/ 5047:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -35009,202 +35022,352 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.wrapExecutor = wrapExecutor;
 const core = __importStar(__nccwpck_require__(2186));
+function wrapExecutor(wrapped) {
+    return async function execute(command, args, options) {
+        let stdErr = '';
+        let stdOut = '';
+        const opts = {
+            cwd: options?.workingDirectory,
+            silent: options?.silent ?? true,
+            ignoreReturnCode: true,
+            listeners: {
+                stdout: (data) => stdOut += data.toString(),
+                stderr: (data) => stdErr += data.toString(),
+            }
+        };
+        const commandStr = `${command} ${args?.join(' ')}`.trim();
+        core.debug(`Executing: ${commandStr}`);
+        const exitCode = await wrapped(command, args, opts);
+        core.debug(`Command '${commandStr}' terminated with exit code ${exitCode}`);
+        if (!(options?.ignoreReturnCode ?? true) && exitCode !== 0) {
+            throw new Error(`Command '${commandStr}' failed with exit code ${exitCode}`);
+        }
+        return { exitCode, stdOut, stdErr };
+    };
+}
+
+
+/***/ }),
+
+/***/ 6350:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.GitOperations = void 0;
+class GitOperations {
+    execute;
+    constructor(executor) {
+        this.execute = executor;
+    }
+    async configureGit() {
+        const options = { silent: true };
+        await this.execute('git', ['config', 'user.name', 'github-actions'], options);
+        await this.execute('git', ['config', 'user.email', ''], options);
+    }
+    async hasChanges() {
+        const commandResult = await this.execute('git', ['diff-index', '--quiet', 'HEAD'], {
+            ignoreReturnCode: true,
+            silent: true,
+        });
+        return commandResult.exitCode !== 0;
+    }
+    async commitAll(commitMessage) {
+        await this.execute('git', ['commit', '--all', '-m', commitMessage]);
+    }
+    async push(options) {
+        if (!options.githubToken) {
+            await this.execute('git', ['push']);
+        }
+        else {
+            const remote = `https://${options.githubActor}:${options.githubToken}@github.com/${options.repository}.git`;
+            await this.execute('git', ['push', remote]);
+        }
+    }
+}
+exports.GitOperations = GitOperations;
+
+
+/***/ }),
+
+/***/ 6144:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
 const exec = __importStar(__nccwpck_require__(1514));
-const glob = __importStar(__nccwpck_require__(8090));
+const main_1 = __nccwpck_require__(399);
+const exec_1 = __nccwpck_require__(5047);
+const main = new main_1.Main((0, exec_1.wrapExecutor)(exec.exec));
+main.run();
+
+
+/***/ }),
+
+/***/ 399:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Main = void 0;
+exports.getInput = getInput;
+const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
+const glob = __importStar(__nccwpck_require__(8090));
 const path = __importStar(__nccwpck_require__(1017));
-function getInput(inputAlternativeNames, { required = false } = {}) {
+const git_1 = __nccwpck_require__(6350);
+const releases_1 = __nccwpck_require__(4325);
+function getInput(inputAlternativeNames) {
     if (inputAlternativeNames.length === 0)
         throw new Error("inputAlternativeNames is empty");
-    let val = "";
-    for (const [i, inputName] of inputAlternativeNames.entries()) {
-        val = core.getInput(inputName, {
-            required: required && i === inputAlternativeNames.length - 1
-        });
+    let val;
+    for (const inputName of inputAlternativeNames) {
+        val = core.getInput(inputName) || undefined;
         core.debug(`${val ? "Value" : "No value"} provided for input "${inputName}"`);
         if (val)
             break;
     }
     return val;
 }
-const owner = 'google';
-const repo = 'google-java-format';
-const githubToken = getInput(['githubToken', 'github-token'], { required: false });
-const commitMessage = getInput(['commitMessage', 'commit-message'], { required: false });
-const executable = path.join((process.env.HOME || process.env.USERPROFILE), 'google-java-format.jar');
-const apiReleases = `https://api.github.com/repos/${owner}/${repo}/releases`;
-async function executeGJF(args = []) {
-    const allArgs = new Array();
-    const javaVersion = await getJavaVersion();
-    // see https://github.com/google/google-java-format#jdk-16
-    if (javaVersion !== undefined && javaVersion >= 11)
-        allArgs.push(...['api', 'file', 'parser', 'tree', 'util']
-            .flatMap(l => ['--add-exports', `jdk.compiler/com.sun.tools.javac.${l}=ALL-UNNAMED`]));
-    allArgs.push('-jar', executable);
-    allArgs.push(...args);
-    const options = {
-        cwd: process.env.GITHUB_WORKSPACE,
-        ignoreReturnCode: true
-    };
-    const exitCode = await exec.exec('java', allArgs, options);
-    if (exitCode !== 0) {
-        throw `Google Java Format failed with exit code ${exitCode}`;
+class Main {
+    execute;
+    releases;
+    gitOperations;
+    githubToken;
+    executablePath;
+    constructor(executor, executablePath = path.join((process.env.HOME || process.env.USERPROFILE), 'google-java-format.jar')) {
+        this.execute = executor;
+        this.gitOperations = new git_1.GitOperations(executor);
+        this.githubToken = getInput(['githubToken', 'github-token']);
+        const octokit = this.githubToken ? github.getOctokit(this.githubToken) : undefined;
+        this.releases = new releases_1.Releases(executor, octokit);
+        this.executablePath = executablePath;
     }
-}
-async function execute(command, { silent = false, ignoreReturnCode = false } = {}) {
-    let stdErr = '';
-    let stdOut = '';
-    const options = {
-        silent: silent,
-        ignoreReturnCode: true,
-        listeners: {
-            stdout: (data) => stdOut += data.toString(),
-            stderr: (data) => stdErr += data.toString(),
+    async getJavaVersion() {
+        const javaVersion = await this.execute('java', ['-version'], { silent: true, ignoreReturnCode: false });
+        core.debug(javaVersion.stdErr);
+        let versionNumber = javaVersion.stdErr
+            .split('\n')[0]
+            .match(RegExp(/[0-9\.]+/))?.[0];
+        if (!versionNumber)
+            throw new Error("Cannot find Java version number");
+        core.debug(`Extracted version number: ${versionNumber}`);
+        if (versionNumber.startsWith('1.'))
+            versionNumber = versionNumber.replace(RegExp(/^1\./), '');
+        versionNumber = versionNumber.split('\.')[0];
+        return parseInt(versionNumber);
+    }
+    async executeGJF(javaVersion, userArgs = []) {
+        const args = new Array();
+        // see https://github.com/google/google-java-format#jdk-16
+        if (javaVersion >= 11) {
+            const modules = ['api', 'file', 'parser', 'tree', 'util'];
+            const exports = modules.flatMap(l => ['--add-exports', `jdk.compiler/com.sun.tools.javac.${l}=ALL-UNNAMED`]);
+            args.push(...exports);
         }
-    };
-    core.debug(`Executing: ${command}`);
-    const exitCode = await exec.exec(command, undefined, options);
-    core.debug(`Exit code: ${exitCode}`);
-    if (!ignoreReturnCode && exitCode !== 0) {
-        command = command.split(' ')[0];
-        throw `The command '${command}' failed with exit code ${exitCode}`;
+        args.push('-jar', this.executablePath, ...userArgs);
+        const options = { ignoreReturnCode: false };
+        return await this.execute('java', args, options);
     }
-    return { exitCode, stdOut, stdErr };
-}
-async function curl(url, args) {
-    let command = `curl -sL "${url}"`;
-    if (args)
-        command += ` ${args}`;
-    return await execute(command, { silent: !core.isDebug() });
-}
-async function listGJFReleases() {
-    if (!githubToken) {
-        const releases = await curl(apiReleases);
-        return JSON.parse(releases.stdOut);
-    }
-    const octokit = github.getOctokit(githubToken);
-    const releases = await octokit.rest.repos.listReleases({
-        owner: owner,
-        repo: repo
-    });
-    return releases.data;
-}
-async function getRelease(releaseId) {
-    if (!githubToken) {
-        const url = `${apiReleases}/${releaseId}`;
-        core.debug(`URL: ${url}`);
-        const release = await curl(url);
-        return JSON.parse(release.stdOut);
-    }
-    const octokit = github.getOctokit(githubToken);
-    const release = await octokit.rest.repos.getRelease({
-        owner: owner,
-        repo: repo,
-        release_id: releaseId
-    });
-    return release.data;
-}
-async function getJavaVersion() {
-    const javaVersion = await execute('java -version', { silent: !core.isDebug() });
-    let versionNumber = javaVersion.stdErr
-        .split('\n')[0]
-        .match(RegExp(/[0-9\.]+/))?.[0];
-    if (!versionNumber)
-        throw new Error("Cannot find Java version number");
-    core.debug(`Extracted version number: ${versionNumber}`);
-    if (versionNumber.startsWith('1.'))
-        versionNumber = versionNumber.replace(RegExp(/^1\./), '');
-    versionNumber = versionNumber.split('\.')[0];
-    return parseInt(versionNumber);
-}
-async function getReleaseId() {
-    let releaseId = 'latest';
-    const releases = await listGJFReleases();
-    core.debug(`releases is ${typeof releases}`);
-    // TODO model type
-    const findRelease = function (name) { return releases.find((r) => r['name'] === name); };
-    // Check if a specific version is requested
-    const input = core.getInput('version');
-    if (input) {
-        const release = findRelease(input);
-        if (release)
-            return release['id'];
-        core.warning(`Version "${input}" of Google Java Format cannot be found. Fallback to latest.`);
-    }
-    const javaVersion = await getJavaVersion();
-    if (isNaN(javaVersion))
-        core.warning('Cannot determine JDK version');
-    else {
-        core.info(`Version of JDK: ${javaVersion}`);
-        if (javaVersion < 11) {
-            // Versions after 1.7 require Java SDK 11+
-            core.warning('Latest versions of Google Java Format require Java SDK 11 min. Fallback to Google Java Format 1.7.');
-            releaseId = findRelease('1.7')['id'];
-            if (!releaseId)
-                throw 'Cannot find release id of Google Java Format 1.7';
+    async getReleaseData(javaVersion, releaseName) {
+        if (!releaseName && javaVersion >= 11) {
+            return this.releases.getLatestReleaseData();
         }
-    }
-    return releaseId;
-}
-async function push() {
-    if (!githubToken)
-        await execute('git push');
-    else {
-        const env = process.env;
-        const remote = `https://${env.GITHUB_ACTOR}:${githubToken}@github.com/${env.GITHUB_REPOSITORY}.git`;
-        await execute(`git push ${remote}`);
-    }
-}
-async function run() {
-    try {
-        // Get Google Java Format executable and save it to [executable]
-        const releaseId = await getReleaseId();
-        await core.group('Downloading Google Java Format', async () => {
-            let release = await getRelease(releaseId);
-            core.debug(`release is ${typeof release}`);
-            const assets = release['assets'];
-            core.debug(`assets is ${typeof assets}`);
-            // TODO model type of asset
-            const downloadUrl = assets.find((asset) => asset['name'].endsWith('all-deps.jar'))['browser_download_url'];
-            core.info(`Downloading executable to ${executable}`);
-            await curl(downloadUrl, `-o ${executable}`);
-            await executeGJF(['--version']);
-        });
-        // Execute Google Java Format with provided arguments
-        const args = core.getInput('args').split(' ');
-        core.debug(`Arguments: ${args}`);
-        const exclude = core.getInput('files-excluded');
-        const excludeRex = exclude && new RegExp(exclude);
-        const files = await (await glob.create(core.getInput('files'))).glob();
-        core.debug(`Files:`);
-        for (const file of files) {
-            if (!excludeRex || !excludeRex.test(file)) {
-                core.debug(`* ${file}`);
-                args.push(file);
-            }
+        // Versions after 1.7 require Java SDK 11+
+        releaseName = releaseName || '1.7';
+        const releaseData = await this.releases.getReleaseDataByName(releaseName);
+        if (!releaseData) {
+            throw new Error(`Cannot find release id of Google Java Format ${releaseName}`);
         }
-        await executeGJF(args);
-        // Commit changed files if there are any and if skipCommit != true
-        if (getInput(['skipCommit', 'skip-commit']).toLowerCase() !== 'true') {
-            await core.group('Committing changes', async () => {
-                await execute('git config user.name github-actions', { silent: true });
-                await execute("git config user.email ''", { silent: true });
-                const diffIndex = await execute('git diff-index --quiet HEAD', { ignoreReturnCode: true, silent: true });
-                if (diffIndex.exitCode !== 0) {
-                    await execute(`git commit --all -m "${commitMessage ? commitMessage : 'Google Java Format'}"`);
-                    await push();
-                }
-                else
-                    core.info('Nothing to commit!');
+        return releaseData;
+    }
+    getDownloadUrl(releaseData) {
+        const downloadUrl = releaseData.assets.find(asset => asset.name.endsWith('all-deps.jar'))?.browser_download_url;
+        if (!downloadUrl) {
+            throw new Error("Cannot find URL to Google Java Format executable");
+        }
+        return downloadUrl;
+    }
+    async getGJFArgs(inputs) {
+        const args = new Array(...inputs.args);
+        const includePattern = inputs.files;
+        const excludePattern = inputs.filesExcluded;
+        const includeFiles = await (await glob.create(includePattern)).glob();
+        const excludeFiles = new Set(excludePattern ? await (await glob.create(excludePattern)).glob() : []);
+        return args.concat(includeFiles.filter(f => !excludeFiles.has(f)));
+    }
+    async downloadExecutable(downloadUrl) {
+        core.info(`Downloading executable to ${this.executablePath}`);
+        await this.execute('curl', ['-sL', downloadUrl, '-o', this.executablePath], { ignoreReturnCode: false });
+    }
+    async commitChanges(inputs) {
+        await this.gitOperations.configureGit();
+        const hasChanges = await this.gitOperations.hasChanges();
+        if (hasChanges) {
+            await this.gitOperations.commitAll(inputs.commitMessage || 'Google Java Format');
+            await this.gitOperations.push({
+                ...inputs,
+                githubToken: this.githubToken,
             });
         }
+        else {
+            core.info('Nothing to commit!');
+        }
     }
-    catch (message) {
-        core.setFailed(message);
+    async run() {
+        try {
+            const javaVersion = await this.getJavaVersion();
+            // Get Google Java Format executable and save it to [executable]
+            await core.group('Download Google Java Format', async () => {
+                const releaseName = getInput(['version']);
+                const release = await this.getReleaseData(javaVersion, releaseName);
+                const downloadUrl = this.getDownloadUrl(release);
+                await this.downloadExecutable(downloadUrl);
+                await this.executeGJF(javaVersion, ['--version']);
+            });
+            // Execute Google Java Format with provided arguments
+            const args = await this.getGJFArgs({
+                args: core.getInput('args').split(' '),
+                files: core.getInput('files', { required: true }),
+                filesExcluded: core.getInput('files-excluded'),
+            });
+            await this.executeGJF(javaVersion, args);
+            // Commit changed files if there are any and if skipCommit != true
+            const skipCommit = getInput(['skipCommit', 'skip-commit'])?.toLowerCase() === 'true';
+            if (!skipCommit) {
+                await core.group('Commit changes', async () => {
+                    await this.commitChanges({
+                        commitMessage: getInput(['commitMessage', 'commit-message']),
+                        githubActor: process.env.GITHUB_ACTOR,
+                        repository: process.env.GITHUB_REPOSITORY,
+                    });
+                });
+            }
+        }
+        catch (message) {
+            core.setFailed(message);
+        }
     }
 }
-run();
+exports.Main = Main;
+
+
+/***/ }),
+
+/***/ 4325:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Releases = void 0;
+const const_1 = __nccwpck_require__(8032);
+class Releases {
+    static apiReleases = `https://api.github.com/repos/${const_1.repositoryOwner}/${const_1.repositoryName}/releases`;
+    execute;
+    octokit;
+    constructor(execute, octokit) {
+        this.execute = execute;
+        this.octokit = octokit;
+    }
+    async callReleasesApi(pathParameter) {
+        const url = `${Releases.apiReleases}${pathParameter || ''}`;
+        const response = await this.execute('curl', ['-sL', url], { ignoreReturnCode: false });
+        return JSON.parse(response.stdOut);
+    }
+    async getAllReleaseData() {
+        if (!this.octokit) {
+            return this.callReleasesApi();
+        }
+        const params = { owner: const_1.repositoryOwner, repo: const_1.repositoryName };
+        const response = await this.octokit.rest.repos.listReleases(params);
+        return response.data;
+    }
+    async getLatestReleaseData() {
+        if (!this.octokit) {
+            return this.callReleasesApi('/latest');
+        }
+        const params = { owner: const_1.repositoryOwner, repo: const_1.repositoryName };
+        const response = await this.octokit.rest.repos.getLatestRelease(params);
+        return response.data;
+    }
+    async getReleaseDataByName(releaseName) {
+        const allReleaseData = await this.getAllReleaseData();
+        return allReleaseData.find(r => r.name === releaseName);
+    }
+}
+exports.Releases = Releases;
 
 
 /***/ }),
@@ -37140,7 +37303,7 @@ module.exports = JSON.parse('[[[0,44],"disallowed_STD3_valid"],[[45,46],"valid"]
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module is referenced by other modules so it can't be inlined
-/******/ 	var __webpack_exports__ = __nccwpck_require__(4177);
+/******/ 	var __webpack_exports__ = __nccwpck_require__(6144);
 /******/ 	module.exports = __webpack_exports__;
 /******/ 	
 /******/ })()
