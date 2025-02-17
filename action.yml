@@ -20,8 +20,8 @@ inputs:
     description: "By default, this action commits any change made to the files. Set to \"true\" to skip this commit."
     required: false
     default: "false"
-  version:
-    description: "Version of Google Java Format to use"
+  release-name:
+    description: "Release name of Google Java Format to use. Examples: 1.7, v1.24.0... Leave empty to use the latest release compatible with your JDK."
     required: false
   github-token:
     description: "If provided, will be used to authenticate the calls to the GitHub API."
