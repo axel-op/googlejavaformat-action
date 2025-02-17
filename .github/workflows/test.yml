@@ -15,7 +15,7 @@ jobs:
           npm install
           npm test
 
-  tests-with-token:
+  e2e-tests-with-token:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.owner.login == 'axel-op'
     strategy:
       fail-fast: false
@@ -35,12 +35,14 @@ jobs:
         run: |
           npm install
           npx tsc
+      - name: Create dummy Java files
+        run: touch Main.java
       - uses: ./
         with:
           skip-commit: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-  tests-without-token:
+  e2e-tests-without-token:
     strategy:
       fail-fast: false
       matrix:
@@ -59,6 +61,8 @@ jobs:
         run: |
           npm install
           npx tsc
+      - name: Create dummy Java files
+        run: touch Main.java
       - uses: ./
         continue-on-error: ${{ matrix.os == 'macos-latest' }}
         with:
