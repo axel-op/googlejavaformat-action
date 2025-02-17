@@ -7,4 +7,4 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
       - uses: actions/checkout@v4
-      - uses: krzema12/github-actions-typing@v0
+      - uses: krzema12/github-actions-typing@v2
