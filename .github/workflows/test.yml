@@ -21,8 +21,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        java-version: [8, 11, 16]
-        version: ["1.6", ""]
+        java-version: [8, 11, 17]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -40,15 +39,13 @@ jobs:
         with:
           skip-commit: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          version: ${{ matrix.version }}
 
   tests-without-token:
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        java-version: [8, 11]
-        version: ["1.6", ""]
+        java-version: [8, 11, 17]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -66,4 +63,3 @@ jobs:
         continue-on-error: ${{ matrix.os == 'macos-latest' }}
         with:
           skip-commit: true
-          version: ${{ matrix.version }}

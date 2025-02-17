@@ -35,7 +35,15 @@ export class Releases {
         return response.data;
     }
 
-    async getLatestReleaseData(): Promise<ReleaseData> {
+    async getLatestReleaseData(javaVersion: number): Promise<ReleaseData> {
+        if (javaVersion < 11) {
+            // Versions after 1.7 require JDK 11+
+            return (await this.getReleaseDataByName('1.7'))!;
+        }
+        if (javaVersion < 17) {
+            // Versions after v1.24.0 require JDK 17+
+            return (await this.getReleaseDataByName('v1.24.0'))!;
+        }
         if (!this.octokit) {
             return this.callReleasesApi('/latest');
         }

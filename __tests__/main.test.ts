@@ -164,19 +164,11 @@ describe('test getting Java version', () => {
 });
 
 describe('test getting release data', () => {
-    test('if no release name and java version >= 11, then return latest release', async () => {
+    test('if no release name, then return latest release', async () => {
         const main = new Main(executor);
         mockGetLatestReleaseData.mockReturnValueOnce(Promise.resolve(dummyReleaseData));
-        const releaseData = await main.getReleaseData(11, undefined);
+        const releaseData = await main.getReleaseData(21, undefined);
         expect(releaseData).toEqual(dummyReleaseData);
-    });
-
-    test('if no release name and java version < 11, then return release 1.7', async () => {
-        const main = new Main(executor);
-        mockGetReleaseDataByName.mockReturnValueOnce(Promise.resolve(dummyReleaseData));
-        const releaseData = await main.getReleaseData(8, undefined);
-        expect(releaseData).toEqual(dummyReleaseData);
-        expect(mockGetReleaseDataByName).lastCalledWith('1.7');
     });
 
     test('if release name, then return it', async () => {

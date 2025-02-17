@@ -61,11 +61,9 @@ export class Main {
     }
 
     async getReleaseData(javaVersion: number, releaseName: string | undefined): Promise<ReleaseData> {
-        if (!releaseName && javaVersion >= 11) {
-            return this.releases.getLatestReleaseData();
+        if (!releaseName) {
+            return this.releases.getLatestReleaseData(javaVersion);
         }
-        // Versions after 1.7 require Java SDK 11+
-        releaseName = releaseName || '1.7';
         const releaseData = await this.releases.getReleaseDataByName(releaseName);
         if (!releaseData) {
             throw new Error(`Cannot find release id of Google Java Format ${releaseName}`);

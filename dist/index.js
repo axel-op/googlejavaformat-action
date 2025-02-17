@@ -35243,11 +35243,9 @@ class Main {
         return await this.execute('java', args, options);
     }
     async getReleaseData(javaVersion, releaseName) {
-        if (!releaseName && javaVersion >= 11) {
-            return this.releases.getLatestReleaseData();
+        if (!releaseName) {
+            return this.releases.getLatestReleaseData(javaVersion);
         }
-        // Versions after 1.7 require Java SDK 11+
-        releaseName = releaseName || '1.7';
         const releaseData = await this.releases.getReleaseDataByName(releaseName);
         if (!releaseData) {
             throw new Error(`Cannot find release id of Google Java Format ${releaseName}`);
@@ -35356,7 +35354,15 @@ class Releases {
         const response = await this.octokit.rest.repos.listReleases(params);
         return response.data;
     }
-    async getLatestReleaseData() {
+    async getLatestReleaseData(javaVersion) {
+        if (javaVersion < 11) {
+            // Versions after 1.7 require JDK 11+
+            return (await this.getReleaseDataByName('1.7'));
+        }
+        if (javaVersion < 17) {
+            // Versions after v1.24.0 require JDK 17+
+            return (await this.getReleaseDataByName('v1.24.0'));
+        }
         if (!this.octokit) {
             return this.callReleasesApi('/latest');
         }
