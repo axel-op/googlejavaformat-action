@@ -79,9 +79,9 @@ None of these inputs is required, but you can add them to change the behavior of
 
 **Recommended if you execute this action from GitHub-hosted MacOS runners or from [self-hosted runners](https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/about-self-hosted-runners)**. Because of [IP-address based rate limiting](https://github.com/actions/virtual-environments/issues/602), calling the GitHub API from any small pool of IPs, [including the GitHub-hosted MacOS runners](https://github.com/actions/runner-images/issues/602#issuecomment-602472951), can result in an error. To overcome this, provide the [`GITHUB_TOKEN`](https://docs.github.com/en/actions/configuring-and-managing-workflows/authenticating-with-the-github_token) to authenticate these calls. If you provide it, it will also be used to authenticate the commits made by this action.
 
-### `version`
+### `release-name`
 
-Set this input to use a [specific version of Google Java Format](https://github.com/google/google-java-format/releases). For example: `1.7`, `1.8`...
+Set this input to use a [specific release of Google Java Format](https://github.com/google/google-java-format/releases). For example: `1.7`, `v1.24.0`... If left empty, the latest version compatible with your JDK will be used.
 
 ### `files`
 

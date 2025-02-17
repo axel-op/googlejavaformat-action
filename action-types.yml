@@ -8,7 +8,7 @@ inputs:
     type: string
   skip-commit:
     type: boolean
-  version:
+  release-name:
     type: string
   github-token:
     type: string

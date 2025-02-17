@@ -112,7 +112,7 @@ export class Main {
             const javaVersion = await this.getJavaVersion();
             // Get Google Java Format executable and save it to [executable]
             await core.group('Download Google Java Format', async () => {
-                const releaseName = getInput(['version']);
+                const releaseName = getInput(['release-name', 'version']);
                 const release = await this.getReleaseData(javaVersion, releaseName);
                 const downloadUrl = this.getDownloadUrl(release);
                 await this.downloadExecutable(downloadUrl);
