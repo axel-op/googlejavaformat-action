@@ -35041,10 +35041,12 @@ function wrapExecutor(wrapped) {
         core.debug(`Executing: ${commandStr}`);
         const exitCode = await wrapped(command, args, opts);
         core.debug(`Command '${commandStr}' terminated with exit code ${exitCode}`);
+        const result = { exitCode, stdOut, stdErr };
+        core.debug(JSON.stringify(result));
         if (!(options?.ignoreReturnCode ?? true) && exitCode !== 0) {
             throw new Error(`Command '${commandStr}' failed with exit code ${exitCode}`);
         }
-        return { exitCode, stdOut, stdErr };
+        return result;
     };
 }
 
