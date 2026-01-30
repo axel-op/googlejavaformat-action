@@ -45,7 +45,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4 # v2 minimum required
-      - uses: axel-op/googlejavaformat-action@4
+      - uses: axel-op/googlejavaformat-action@v4
         with:
           args: "--set-exit-if-changed"
 ```
