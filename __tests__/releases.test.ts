@@ -46,7 +46,8 @@ const dummyReleaseData: ReleaseData = {
 
 const dummyReleaseData_1_7 = { ...dummyReleaseData, name: '1.7' };
 const dummyReleaseData_v1_24_0 = { ...dummyReleaseData, name: 'v1.24.0' };
-const allReleases = [dummyReleaseData, dummyReleaseData_1_7, dummyReleaseData_v1_24_0];
+const dummyReleaseData_v1_28_0 = { ...dummyReleaseData, name: 'v1.28.0' };
+const allReleases = [dummyReleaseData, dummyReleaseData_1_7, dummyReleaseData_v1_24_0, dummyReleaseData_v1_28_0];
 
 const executor = jest.fn<CommandExecutor>();
 type ListReleases = Octokit['rest']['repos']['listReleases'];
@@ -139,7 +140,7 @@ describe('get all release data', () => {
 });
 
 describe('get latest release data', () => {
-    const casesJavaVersions: [number, ReleaseData][] = [[8, dummyReleaseData_1_7], [11, dummyReleaseData_v1_24_0]];
+    const casesJavaVersions: [number, ReleaseData][] = [[8, dummyReleaseData_1_7], [11, dummyReleaseData_v1_24_0], [17, dummyReleaseData_v1_28_0]];
 
     describe('get latest release data with API', () => {
         const releases = new Releases(executor);
