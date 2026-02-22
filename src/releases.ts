@@ -31,8 +31,8 @@ export class Releases {
             return this.callReleasesApi();
         }
         const params = { owner: GJF_REPO_OWNER, repo: GJF_REPO_NAME, per_page: 100 };
-        const response = await this.octokit.rest.repos.listReleases(params);
-        return response.data;
+        const allReleases = await this.octokit.paginate(this.octokit.rest.repos.listReleases, params);
+        return allReleases;
     }
 
     async getLatestReleaseData(javaVersion: number): Promise<ReleaseData> {

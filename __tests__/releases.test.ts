@@ -50,11 +50,14 @@ const dummyReleaseData_v1_28_0 = { ...dummyReleaseData, name: 'v1.28.0' };
 const allReleases = [dummyReleaseData, dummyReleaseData_1_7, dummyReleaseData_v1_24_0, dummyReleaseData_v1_28_0];
 
 const executor = jest.fn<CommandExecutor>();
+type Paginate = Octokit['paginate'];
 type ListReleases = Octokit['rest']['repos']['listReleases'];
 type GetLatestRelease = Octokit['rest']['repos']['getLatestRelease'];
+const mockPaginate = jest.fn<Paginate>();
 const mockListReleases = jest.fn<ListReleases>();
 const mockGetLatestRelease = jest.fn<GetLatestRelease>();
 const octokit = {
+    paginate: mockPaginate,
     rest: {
         repos: {
             listReleases: mockListReleases,
@@ -88,12 +91,7 @@ function mockApiReturnRelease(releaseData: ReleaseData) {
 }
 
 function mockOctokitReturnReleases() {
-    mockListReleases.mockReturnValueOnce(Promise.resolve({
-        headers: undefined as any,
-        status: 200,
-        url: '',
-        data: allReleases
-    }));
+    mockPaginate.mockReturnValueOnce(Promise.resolve(allReleases));
 }
 
 function mockOctokitReturnRelease(releaseData: ReleaseData) {
@@ -134,6 +132,7 @@ describe('get all release data', () => {
         const releases = new Releases(executor, octokit);
         const results = await releases.getAllReleaseData();
         expect(results).toEqual(allReleases);
+        expect(mockPaginate).toHaveBeenCalledWith(octokit.rest.repos.listReleases, { owner: "google", repo: "google-java-format", "per_page": 100 });
         expect(mockGetLatestRelease).not.toBeCalled();
         expect(executor).not.toBeCalled();
     });

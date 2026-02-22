@@ -32722,8 +32722,8 @@ class Releases {
             return this.callReleasesApi();
         }
         const params = { owner: const_1.repositoryOwner, repo: const_1.repositoryName, per_page: 100 };
-        const response = await this.octokit.rest.repos.listReleases(params);
-        return response.data;
+        const allReleases = await this.octokit.paginate(this.octokit.rest.repos.listReleases, params);
+        return allReleases;
     }
     async getLatestReleaseData(javaVersion) {
         if (javaVersion < 11) {
