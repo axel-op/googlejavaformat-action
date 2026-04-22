@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v6.4.0
+      - uses: actions/setup-node@v6
         with:
           node-version: 24
       - name: Test
@@ -28,7 +28,7 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: ${{ matrix.java-version }}
-      - uses: actions/setup-node@v6.4.0
+      - uses: actions/setup-node@v6
         with:
           node-version: 24
       - name: Compile
@@ -54,7 +54,7 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: ${{ matrix.java-version }}
-      - uses: actions/setup-node@v6.4.0
+      - uses: actions/setup-node@v6
         with:
           node-version: 24
       - name: Compile
