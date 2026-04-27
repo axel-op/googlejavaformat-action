@@ -44,6 +44,10 @@ export class Releases {
             // Versions after v1.24.0 require JDK 17+
             return (await this.getReleaseDataByName('v1.24.0'))!;
         }
+        if (javaVersion < 21) {
+            // Versions after v1.28.0 require JDK 21+
+            return (await this.getReleaseDataByName('v1.28.0'))!;
+        }
         if (!this.octokit) {
             return this.callReleasesApi('/latest');
         }
