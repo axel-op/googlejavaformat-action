@@ -46,14 +46,18 @@ const dummyReleaseData: ReleaseData = {
 
 const dummyReleaseData_1_7 = { ...dummyReleaseData, name: '1.7' };
 const dummyReleaseData_v1_24_0 = { ...dummyReleaseData, name: 'v1.24.0' };
-const allReleases = [dummyReleaseData, dummyReleaseData_1_7, dummyReleaseData_v1_24_0];
+const dummyReleaseData_v1_28_0 = { ...dummyReleaseData, name: 'v1.28.0' };
+const allReleases = [dummyReleaseData, dummyReleaseData_1_7, dummyReleaseData_v1_24_0, dummyReleaseData_v1_28_0];
 
 const executor = jest.fn<CommandExecutor>();
+type Paginate = Octokit['paginate'];
 type ListReleases = Octokit['rest']['repos']['listReleases'];
 type GetLatestRelease = Octokit['rest']['repos']['getLatestRelease'];
+const mockPaginate = jest.fn<Paginate>();
 const mockListReleases = jest.fn<ListReleases>();
 const mockGetLatestRelease = jest.fn<GetLatestRelease>();
 const octokit = {
+    paginate: mockPaginate,
     rest: {
         repos: {
             listReleases: mockListReleases,
@@ -87,12 +91,7 @@ function mockApiReturnRelease(releaseData: ReleaseData) {
 }
 
 function mockOctokitReturnReleases() {
-    mockListReleases.mockReturnValueOnce(Promise.resolve({
-        headers: undefined as any,
-        status: 200,
-        url: '',
-        data: allReleases
-    }));
+    mockPaginate.mockReturnValueOnce(Promise.resolve(allReleases));
 }
 
 function mockOctokitReturnRelease(releaseData: ReleaseData) {
@@ -105,6 +104,7 @@ function mockOctokitReturnRelease(releaseData: ReleaseData) {
 }
 
 const URL_BASE = "https://api.github.com/repos/google/google-java-format/releases";
+const URL_TAIL = "?per_page=100";
 
 describe('get all release data', () => {
     test('get all release data with API', async () => {
@@ -113,7 +113,7 @@ describe('get all release data', () => {
         const results = await releases.getAllReleaseData();
         expect(results).toEqual(allReleases);
         // IMPORTANT: should not have a trailing slash
-        expectLastCurlCallForUrl(URL_BASE);
+        expectLastCurlCallForUrl(URL_BASE + URL_TAIL);
     });
 
     test('get all release data with API and call to API fails', async () => {
@@ -124,7 +124,7 @@ describe('get all release data', () => {
             .rejects
             .toThrow(error)
         // IMPORTANT: should not have a trailing slash
-        expectLastCurlCallForUrl(URL_BASE);
+        expectLastCurlCallForUrl(URL_BASE + URL_TAIL);
     });
 
     test('get all release data with octokit', async () => {
@@ -132,13 +132,14 @@ describe('get all release data', () => {
         const releases = new Releases(executor, octokit);
         const results = await releases.getAllReleaseData();
         expect(results).toEqual(allReleases);
+        expect(mockPaginate).toHaveBeenCalledWith(octokit.rest.repos.listReleases, { owner: "google", repo: "google-java-format", "per_page": 100 });
         expect(mockGetLatestRelease).not.toBeCalled();
         expect(executor).not.toBeCalled();
     });
 });
 
 describe('get latest release data', () => {
-    const casesJavaVersions: [number, ReleaseData][] = [[8, dummyReleaseData_1_7], [11, dummyReleaseData_v1_24_0]];
+    const casesJavaVersions: [number, ReleaseData][] = [[8, dummyReleaseData_1_7], [11, dummyReleaseData_v1_24_0], [17, dummyReleaseData_v1_28_0]];
 
     describe('get latest release data with API', () => {
         const releases = new Releases(executor);
@@ -148,14 +149,14 @@ describe('get latest release data', () => {
             const result = await releases.getLatestReleaseData(javaVersion);
             expect(result).toEqual(expectedRelease);
             // IMPORTANT: should not have a trailing slash
-            expectLastCurlCallForUrl(URL_BASE);
+            expectLastCurlCallForUrl(URL_BASE + URL_TAIL);
         });
 
         test('when java version is 21, then return release latest', async () => {
             mockApiReturnRelease(dummyReleaseData);
             const result = await releases.getLatestReleaseData(21);
             expect(result).toEqual(dummyReleaseData);
-            expectLastCurlCallForUrl(URL_BASE + "/latest");
+            expectLastCurlCallForUrl(URL_BASE + "/latest" + URL_TAIL);
         });
     });
 
@@ -166,7 +167,7 @@ describe('get latest release data', () => {
         expect(() => releases.getLatestReleaseData(21))
             .rejects
             .toThrow(error);
-        expectLastCurlCallForUrl(URL_BASE + "/latest");
+        expectLastCurlCallForUrl(URL_BASE + "/latest" + URL_TAIL);
     });
 
     describe('get latest release data with octokit', () => {
@@ -195,7 +196,7 @@ describe('get release by name', () => {
         const result = await releases.getReleaseDataByName('dummy-release-data');
         expect(result).toEqual(dummyReleaseData);
         // IMPORTANT: should not have a trailing slash
-        expectLastCurlCallForUrl(URL_BASE);
+        expectLastCurlCallForUrl(URL_BASE + URL_TAIL);
     });
 
     test('get release by name (non-existing)', async () => {
@@ -204,6 +205,6 @@ describe('get release by name', () => {
         const result = await releases.getReleaseDataByName('non-existing-data');
         expect(result).toBeUndefined();
         // IMPORTANT: should not have a trailing slash
-        expectLastCurlCallForUrl(URL_BASE);
+        expectLastCurlCallForUrl(URL_BASE + URL_TAIL);
     });
 });

@@ -21,7 +21,7 @@ export class Releases {
     private async callReleasesApi(pathParameter: string | number): Promise<ReleaseData>;
     private async callReleasesApi(pathParameter?: number): Promise<ReleaseData | ReleaseData[]>;
     private async callReleasesApi(pathParameter?: string | number): Promise<ReleaseData | ReleaseData[]> {
-        const url = `${Releases.apiReleases}${pathParameter || ''}`;
+        const url = `${Releases.apiReleases}${pathParameter || ''}?per_page=100`;
         const response = await this.execute('curl', ['-sL', url], { ignoreReturnCode: false });
         return JSON.parse(response.stdOut);
     }
@@ -30,9 +30,9 @@ export class Releases {
         if (!this.octokit) {
             return this.callReleasesApi();
         }
-        const params = { owner: GJF_REPO_OWNER, repo: GJF_REPO_NAME };
-        const response = await this.octokit.rest.repos.listReleases(params);
-        return response.data;
+        const params = { owner: GJF_REPO_OWNER, repo: GJF_REPO_NAME, per_page: 100 };
+        const allReleases = await this.octokit.paginate(this.octokit.rest.repos.listReleases, params);
+        return allReleases;
     }
 
     async getLatestReleaseData(javaVersion: number): Promise<ReleaseData> {

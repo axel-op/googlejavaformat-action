@@ -32713,7 +32713,7 @@ class Releases {
         this.octokit = octokit;
     }
     async callReleasesApi(pathParameter) {
-        const url = `${Releases.apiReleases}${pathParameter || ''}`;
+        const url = `${Releases.apiReleases}${pathParameter || ''}?per_page=100`;
         const response = await this.execute('curl', ['-sL', url], { ignoreReturnCode: false });
         return JSON.parse(response.stdOut);
     }
@@ -32721,9 +32721,9 @@ class Releases {
         if (!this.octokit) {
             return this.callReleasesApi();
         }
-        const params = { owner: const_1.repositoryOwner, repo: const_1.repositoryName };
-        const response = await this.octokit.rest.repos.listReleases(params);
-        return response.data;
+        const params = { owner: const_1.repositoryOwner, repo: const_1.repositoryName, per_page: 100 };
+        const allReleases = await this.octokit.paginate(this.octokit.rest.repos.listReleases, params);
+        return allReleases;
     }
     async getLatestReleaseData(javaVersion) {
         if (javaVersion < 11) {
